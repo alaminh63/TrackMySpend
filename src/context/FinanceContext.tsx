@@ -12,6 +12,7 @@ import {
   Investment,
   Client,
   Invoice,
+  InvoiceStatus,
   SavingsGoal,
   ExchangeRates,
   AppNotification,
@@ -42,6 +43,7 @@ interface FinanceContextType {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
   isLocked: boolean;
+  isAppLocked: boolean;
   unlockApp: (pin: string) => boolean;
   lockApp: () => void;
   
@@ -97,7 +99,7 @@ interface FinanceContextType {
   addLoan: (loan: Omit<Loan, 'id' | 'createdAt' | 'updatedAt' | 'repayments' | 'amountRepaid'>) => void;
   updateLoan: (id: string, updates: Partial<Loan>) => void;
   deleteLoan: (id: string, permanent?: boolean) => void;
-  addLoanRepayment: (loanId: string, amount: number, accountId: string, notes?: string) => void;
+  addLoanRepayment: (loanId: string, amountOrObj: number | { amount: number; accountId?: string; notes?: string; date?: string }, accountId?: string, notes?: string) => void;
 
   // Investments
   investments: Investment[];
@@ -113,14 +115,20 @@ interface FinanceContextType {
   invoices: Invoice[];
   addInvoice: (invoice: Omit<Invoice, 'id' | 'createdAt'>) => Invoice;
   updateInvoice: (id: string, updates: Partial<Invoice>) => void;
+  updateInvoiceStatus: (id: string, status: InvoiceStatus) => void;
   deleteInvoice: (id: string) => void;
 
   // Savings Goals
   goals: SavingsGoal[];
+  savingsGoals: SavingsGoal[];
   addGoal: (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'history' | 'isCompleted'>) => void;
+  addSavingsGoal: (goal: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'history' | 'isCompleted'>) => void;
   updateGoal: (id: string, updates: Partial<SavingsGoal>) => void;
   deleteGoal: (id: string) => void;
+  deleteSavingsGoal: (id: string) => void;
   contributeToGoal: (goalId: string, amount: number, type: 'deposit' | 'withdraw', accountId?: string, notes?: string) => void;
+  depositToSavingsGoal: (goalId: string, amount: number, accountId?: string, notes?: string) => void;
+  withdrawFromSavingsGoal: (goalId: string, amount: number, accountId?: string, notes?: string) => void;
 
   // Notifications
   notifications: AppNotification[];
@@ -140,6 +148,8 @@ interface FinanceContextType {
     loans: Loan[];
   };
   restoreTrashItem: (type: 'income' | 'expense' | 'transfer' | 'loan', id: string) => void;
+  restoreFromTrash: (type: 'income' | 'expense' | 'transfer' | 'loan', id: string) => void;
+  permanentDelete: (type: 'income' | 'expense' | 'transfer' | 'loan', id: string) => void;
   emptyTrash: () => void;
 
   // Net Worth & Aggregates
@@ -151,8 +161,11 @@ interface FinanceContextType {
 
   // Backup, Restore & CSV import
   exportDatabaseJson: () => string;
+  exportFullBackupJson: () => void;
   importDatabaseJson: (jsonString: string) => { success: boolean; message: string };
+  importFullBackupJson: (jsonString: string) => boolean;
   resetToSampleData: () => void;
+  resetToInitialData: () => void;
   batchImportTransactions: (transactions: {
     type: 'income' | 'expense';
     date: string;
@@ -237,38 +250,42 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.AUDIT, JSON.stringify(auditLogs)); }, [auditLogs]);
 
   // Currency Converter
-  const convertCurrency = (amount: number, from: CurrencyCode, to: CurrencyCode = profile.baseCurrency): number => {
-    if (from === to) return amount;
-    const fromRateToBDT = exchangeRates[from] || 1;
-    const toRateToBDT = exchangeRates[to] || 1;
-    // Amount in BDT
-    const amountInBDT = amount * fromRateToBDT;
-    // Converted to target currency
-    return amountInBDT / toRateToBDT;
+  const convertCurrency = (amount: number | undefined | null, from?: CurrencyCode, to?: CurrencyCode): number => {
+    const validAmount = typeof amount === 'number' && !isNaN(amount) ? amount : (parseFloat(amount as any) || 0);
+    const fromCode = from || profile.baseCurrency || 'BDT';
+    const toCode = to || profile.baseCurrency || 'BDT';
+    if (fromCode === toCode) return validAmount;
+    const fromRateToBDT = exchangeRates[fromCode] || (fromCode === 'USD' ? 120 : fromCode === 'EUR' ? 130 : 1);
+    const toRateToBDT = exchangeRates[toCode] || (toCode === 'USD' ? 120 : toCode === 'EUR' ? 130 : 1);
+    if (!toRateToBDT || isNaN(toRateToBDT)) return validAmount;
+    const amountInBDT = validAmount * fromRateToBDT;
+    const converted = amountInBDT / toRateToBDT;
+    return isNaN(converted) ? 0 : converted;
   };
 
   const updateExchangeRate = (currency: string, rate: number) => {
     setExchangeRates(prev => ({ ...prev, [currency]: rate }));
   };
 
-  const formatCurrency = (amount: number, currency: CurrencyCode = profile.baseCurrency, options?: { compact?: boolean }): string => {
-    const isBDT = currency === 'BDT';
-    const symbol = isBDT ? '৳' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : `${currency} `;
+  const formatCurrency = (amount: number | undefined | null, currency: CurrencyCode = profile.baseCurrency, options?: { compact?: boolean }): string => {
+    const isBDT = (currency || profile.baseCurrency) === 'BDT';
+    const symbol = isBDT ? '৳' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : `${currency || '৳'} `;
+    const num = typeof amount === 'number' && !isNaN(amount) ? amount : (parseFloat(amount as any) || 0);
     
-    if (options?.compact && Math.abs(amount) >= 1000000) {
-      return `${symbol}${(amount / 1000000).toFixed(2)}M`;
+    if (options?.compact && Math.abs(num) >= 1000000) {
+      return `${symbol}${(num / 1000000).toFixed(2)}M`;
     }
-    if (options?.compact && Math.abs(amount) >= 100000 && isBDT) {
-      return `${symbol}${(amount / 100000).toFixed(2)} Lakh`;
+    if (options?.compact && Math.abs(num) >= 100000 && isBDT) {
+      return `${symbol}${(num / 100000).toFixed(2)} Lakh`;
     }
-    if (options?.compact && Math.abs(amount) >= 1000) {
-      return `${symbol}${(amount / 1000).toFixed(1)}k`;
+    if (options?.compact && Math.abs(num) >= 1000) {
+      return `${symbol}${(num / 1000).toFixed(1)}k`;
     }
 
     const formattedNum = new Intl.NumberFormat('en-IN', {
       maximumFractionDigits: 2,
-      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-    }).format(amount);
+      minimumFractionDigits: Number.isInteger(num) ? 0 : 2,
+    }).format(num);
 
     return `${symbol}${formattedNum}`;
   };
@@ -588,29 +605,39 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  const addLoanRepayment = (loanId: string, amount: number, accountId: string, notes?: string) => {
+  const addLoanRepayment = (
+    loanId: string,
+    amountOrObj: number | { amount: number; accountId?: string; notes?: string; date?: string },
+    accountIdArg?: string,
+    notesArg?: string
+  ) => {
+    const amount = typeof amountOrObj === 'number' ? amountOrObj : (amountOrObj?.amount || 0);
+    const accountId = typeof amountOrObj === 'object' && amountOrObj !== null ? amountOrObj.accountId : accountIdArg;
+    const notes = typeof amountOrObj === 'object' && amountOrObj !== null ? amountOrObj.notes : notesArg;
+    const date = (typeof amountOrObj === 'object' && amountOrObj !== null && amountOrObj.date) ? amountOrObj.date : new Date().toISOString().slice(0, 10);
+
     setLoans(prev => prev.map(loan => {
       if (loan.id === loanId) {
-        const newAmountRepaid = loan.amountRepaid + amount;
+        const newAmountRepaid = (loan.amountRepaid || 0) + amount;
         const newStatus = newAmountRepaid >= loan.amount ? 'Settled' : 'Partially Paid';
         const newRepayment = {
           id: `rep-${Date.now()}`,
           amount,
-          date: new Date().toISOString().slice(0, 10),
-          accountId,
+          date,
+          accountId: accountId || '',
           notes,
         };
 
         // Update account balance
-        setAccounts(accs => accs.map(acc => {
-          if (acc.id === accountId) {
-            // If loan was lent: receiving money increases balance
-            // If loan was borrowed: paying back decreases balance
-            const delta = loan.type === 'lent' ? amount : -amount;
-            return { ...acc, currentBalance: acc.currentBalance + delta };
-          }
-          return acc;
-        }));
+        if (accountId) {
+          setAccounts(accs => accs.map(acc => {
+            if (acc.id === accountId) {
+              const delta = loan.type === 'lent' ? amount : -amount;
+              return { ...acc, currentBalance: acc.currentBalance + delta };
+            }
+            return acc;
+          }));
+        }
 
         logAuditAction('repayment', 'loan', loan.id, `Loan Repayment (${formatCurrency(amount, loan.currency)}) recorded for ${loan.person}`);
 
@@ -618,7 +645,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ...loan,
           amountRepaid: newAmountRepaid,
           status: newStatus,
-          repayments: [newRepayment, ...loan.repayments],
+          repayments: [newRepayment, ...(loan.repayments || [])],
           updatedAt: new Date().toISOString(),
         };
       }
@@ -675,6 +702,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setInvoices(prev => prev.map(inv => inv.id === id ? { ...inv, ...updates } : inv));
   };
 
+  const updateInvoiceStatus = (id: string, status: InvoiceStatus) => {
+    updateInvoice(id, { status });
+  };
+
   const deleteInvoice = (id: string) => {
     setInvoices(prev => prev.filter(inv => inv.id !== id));
   };
@@ -684,13 +715,17 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const newGoal: SavingsGoal = {
       ...goalData,
       id: `goal-${Date.now()}`,
-      currentAmount: 0,
-      isCompleted: false,
+      currentAmount: (goalData as any).currentAmount || 0,
+      isCompleted: ((goalData as any).currentAmount || 0) >= goalData.targetAmount,
       history: [],
       createdAt: new Date().toISOString(),
     };
     setGoals(prev => [newGoal, ...prev]);
     logAuditAction('create', 'goal', newGoal.id, `Savings Goal created: ${newGoal.name} (${formatCurrency(newGoal.targetAmount, newGoal.currency)})`);
+  };
+
+  const addSavingsGoal = (goalData: Omit<SavingsGoal, 'id' | 'createdAt' | 'currentAmount' | 'history' | 'isCompleted'>) => {
+    addGoal(goalData);
   };
 
   const updateGoal = (id: string, updates: Partial<SavingsGoal>) => {
@@ -701,11 +736,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setGoals(prev => prev.filter(g => g.id !== id));
   };
 
+  const deleteSavingsGoal = (id: string) => {
+    deleteGoal(id);
+  };
+
   const contributeToGoal = (goalId: string, amount: number, type: 'deposit' | 'withdraw', accountId?: string, notes?: string) => {
     setGoals(prev => prev.map(g => {
       if (g.id === goalId) {
         const delta = type === 'deposit' ? amount : -amount;
-        const newCurrent = Math.max(0, g.currentAmount + delta);
+        const newCurrent = Math.max(0, (g.currentAmount || 0) + delta);
         const isCompleted = newCurrent >= g.targetAmount;
         const newHistory = {
           id: `gh-${Date.now()}`,
@@ -732,11 +771,19 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ...g,
           currentAmount: newCurrent,
           isCompleted,
-          history: [newHistory, ...g.history],
+          history: [newHistory, ...(g.history || [])],
         };
       }
       return g;
     }));
+  };
+
+  const depositToSavingsGoal = (goalId: string, amount: number, accountId?: string, notes?: string) => {
+    contributeToGoal(goalId, amount, 'deposit', accountId, notes);
+  };
+
+  const withdrawFromSavingsGoal = (goalId: string, amount: number, accountId?: string, notes?: string) => {
+    contributeToGoal(goalId, amount, 'withdraw', accountId, notes);
   };
 
   // Notifications
@@ -773,6 +820,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     logAuditAction('restore', type, id, `Restored ${type} from trash`);
   };
 
+  const permanentDelete = (type: 'income' | 'expense' | 'transfer' | 'loan', id: string) => {
+    if (type === 'income') deleteIncome(id, true);
+    else if (type === 'expense') deleteExpense(id, true);
+    else if (type === 'transfer') deleteTransfer(id, true);
+    else if (type === 'loan') deleteLoan(id, true);
+  };
+
   const emptyTrash = () => {
     setIncomes(prev => prev.filter(i => !i.isDeleted));
     setExpenses(prev => prev.filter(e => !e.isDeleted));
@@ -783,29 +837,52 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Net worth & totals
   const totalAccountBalance = useMemo(() => {
-    return accounts
-      .filter(a => !a.isArchived)
-      .reduce((sum, a) => sum + convertCurrency(a.currentBalance, a.currency, profile.baseCurrency), 0);
+    return (accounts || [])
+      .filter(a => a && !a.isArchived)
+      .reduce((sum, a) => {
+        const bal = typeof a.currentBalance === 'number' && !isNaN(a.currentBalance) ? a.currentBalance : 0;
+        const cur = a.currency || profile.baseCurrency || 'BDT';
+        return sum + convertCurrency(bal, cur, profile.baseCurrency);
+      }, 0);
   }, [accounts, exchangeRates, profile.baseCurrency]);
 
   const totalInvestmentValue = useMemo(() => {
-    return investments.reduce((sum, inv) => sum + convertCurrency(inv.currentValue, inv.currency, profile.baseCurrency), 0);
+    return (investments || []).reduce((sum, inv) => {
+      const val = typeof inv.currentValue === 'number' && !isNaN(inv.currentValue) 
+        ? inv.currentValue 
+        : (typeof inv.principalAmount === 'number' && !isNaN(inv.principalAmount) ? inv.principalAmount : 0);
+      const cur = inv.currency || profile.baseCurrency || 'BDT';
+      return sum + convertCurrency(val, cur, profile.baseCurrency);
+    }, 0);
   }, [investments, exchangeRates, profile.baseCurrency]);
 
   const totalLoansReceivable = useMemo(() => {
-    return loans
-      .filter(l => !l.isDeleted && l.type === 'lent')
-      .reduce((sum, l) => sum + convertCurrency(l.amount - l.amountRepaid, l.currency, profile.baseCurrency), 0);
+    return (loans || [])
+      .filter(l => l && !l.isDeleted && l.type === 'lent')
+      .reduce((sum, l) => {
+        const amt = typeof l.amount === 'number' && !isNaN(l.amount) ? l.amount : 0;
+        const repaid = typeof l.amountRepaid === 'number' && !isNaN(l.amountRepaid) ? l.amountRepaid : 0;
+        const rem = Math.max(0, amt - repaid);
+        const cur = l.currency || profile.baseCurrency || 'BDT';
+        return sum + convertCurrency(rem, cur, profile.baseCurrency);
+      }, 0);
   }, [loans, exchangeRates, profile.baseCurrency]);
 
   const totalLoansPayable = useMemo(() => {
-    return loans
-      .filter(l => !l.isDeleted && l.type === 'borrowed')
-      .reduce((sum, l) => sum + convertCurrency(l.amount - l.amountRepaid, l.currency, profile.baseCurrency), 0);
+    return (loans || [])
+      .filter(l => l && !l.isDeleted && l.type === 'borrowed')
+      .reduce((sum, l) => {
+        const amt = typeof l.amount === 'number' && !isNaN(l.amount) ? l.amount : 0;
+        const repaid = typeof l.amountRepaid === 'number' && !isNaN(l.amountRepaid) ? l.amountRepaid : 0;
+        const rem = Math.max(0, amt - repaid);
+        const cur = l.currency || profile.baseCurrency || 'BDT';
+        return sum + convertCurrency(rem, cur, profile.baseCurrency);
+      }, 0);
   }, [loans, exchangeRates, profile.baseCurrency]);
 
   const netWorth = useMemo(() => {
-    return totalAccountBalance + totalInvestmentValue + totalLoansReceivable - totalLoansPayable;
+    const nw = (totalAccountBalance || 0) + (totalInvestmentValue || 0) + (totalLoansReceivable || 0) - (totalLoansPayable || 0);
+    return isNaN(nw) ? 0 : nw;
   }, [totalAccountBalance, totalInvestmentValue, totalLoansReceivable, totalLoansPayable]);
 
   // JSON Database Export & Restore
@@ -884,6 +961,26 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     logAuditAction('backup_restore', 'system', 'reset', 'Reset database to realistic sample data');
   };
 
+  const exportFullBackupJson = () => {
+    const json = exportDatabaseJson();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `financecore-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importFullBackupJson = (jsonString: string): boolean => {
+    const res = importDatabaseJson(jsonString);
+    return res.success;
+  };
+
+  const resetToInitialData = () => {
+    resetToSampleData();
+  };
+
   const batchImportTransactions = (transactions: {
     type: 'income' | 'expense';
     date: string;
@@ -947,71 +1044,80 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         profile,
         updateProfile,
         isLocked,
+        isAppLocked: isLocked,
         unlockApp,
         lockApp,
         exchangeRates,
         updateExchangeRate,
         convertCurrency,
         formatCurrency,
-        incomes: incomes.filter(i => !i.isDeleted),
+        incomes: (incomes || []).filter(i => !i.isDeleted),
         addIncome,
         updateIncome,
         deleteIncome,
         duplicateIncome,
-        salaryLogs,
+        salaryLogs: salaryLogs || [],
         addSalaryLog,
         updateSalaryLog,
-        expenses: expenses.filter(e => !e.isDeleted),
+        expenses: (expenses || []).filter(e => !e.isDeleted),
         addExpense,
         updateExpense,
         deleteExpense,
         duplicateExpense,
-        categories,
+        categories: categories || [],
         addCategory,
         updateCategory,
         deleteCategory,
         addSubCategory,
-        accounts,
+        accounts: accounts || [],
         addAccount,
         updateAccount,
         deleteAccount,
-        transfers: transfers.filter(t => !t.isDeleted),
+        transfers: (transfers || []).filter(t => !t.isDeleted),
         addTransfer,
         deleteTransfer,
-        budgets,
+        budgets: budgets || [],
         addBudget,
         updateBudget,
         deleteBudget,
-        loans: loans.filter(l => !l.isDeleted),
+        loans: (loans || []).filter(l => !l.isDeleted),
         addLoan,
         updateLoan,
         deleteLoan,
         addLoanRepayment,
-        investments,
+        investments: investments || [],
         addInvestment,
         updateInvestment,
         deleteInvestment,
-        clients,
+        clients: clients || [],
         addClient,
         updateClient,
         deleteClient,
-        invoices,
+        invoices: invoices || [],
         addInvoice,
         updateInvoice,
+        updateInvoiceStatus,
         deleteInvoice,
-        goals,
+        goals: goals || [],
+        savingsGoals: goals || [],
         addGoal,
+        addSavingsGoal,
         updateGoal,
         deleteGoal,
+        deleteSavingsGoal,
         contributeToGoal,
-        notifications,
+        depositToSavingsGoal,
+        withdrawFromSavingsGoal,
+        notifications: notifications || [],
         markNotificationRead,
         markAllNotificationsRead,
         clearNotification,
-        auditLogs,
+        auditLogs: auditLogs || [],
         logAuditAction,
         trashItems,
         restoreTrashItem,
+        restoreFromTrash: restoreTrashItem,
+        permanentDelete,
         emptyTrash,
         netWorth,
         totalAccountBalance,
@@ -1019,8 +1125,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         totalLoansReceivable,
         totalLoansPayable,
         exportDatabaseJson,
+        exportFullBackupJson,
         importDatabaseJson,
+        importFullBackupJson,
         resetToSampleData,
+        resetToInitialData,
         batchImportTransactions,
       }}
     >

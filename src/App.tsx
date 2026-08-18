@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { FinanceProvider, useFinance } from './context/FinanceContext';
 import { AuthLockScreen } from './components/AuthLockScreen';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { QuickAddModal } from './components/QuickAddModal';
 import { CurrencyConverterModal } from './components/CurrencyConverterModal';
+import {
+  Flame,
+  LayoutDashboard,
+  Plus,
+  Landmark,
+  Menu,
+  ReceiptText,
+  Calendar,
+  Sparkles,
+} from 'lucide-react';
 
 import { DailyExpenseView } from './views/DailyExpenseView';
 import { DashboardView } from './views/DashboardView';
@@ -46,6 +57,21 @@ const MainLayout: React.FC = () => {
     });
   };
 
+  // Formatted current date
+  const now = new Date();
+  const formattedDate = now.toLocaleDateString('bn-BD', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const formattedDateEn = now.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
   const renderActiveView = () => {
     switch (activeTab) {
       case 'daily-expense':
@@ -80,7 +106,7 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
       {/* Top Fixed Header */}
       <Navbar
         onOpenQuickAdd={() => handleOpenQuickAdd('expense')}
@@ -90,7 +116,7 @@ const MainLayout: React.FC = () => {
       />
 
       {/* Main Content Layout */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex max-w-7xl w-full mx-auto pb-24 lg:pb-8">
         {/* Navigation Sidebar */}
         <Sidebar
           activeTab={activeTab}
@@ -100,10 +126,107 @@ const MainLayout: React.FC = () => {
         />
 
         {/* Dynamic View Canvas */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-y-auto">
-          {renderActiveView()}
+        <main className="flex-1 p-3 sm:p-5 lg:p-7 min-w-0 overflow-y-auto">
+          {/* Subtle Top Info Strip */}
+          <div className="mb-4 pb-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-semibold text-[11px] sm:text-xs">
+                <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="truncate">{formattedDateEn}</span>
+                <span className="text-slate-400 hidden sm:inline">|</span>
+                <span className="text-slate-600 font-medium hidden sm:inline">{formattedDate}</span>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleOpenQuickAdd('expense')}
+                className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[11px] font-bold border border-emerald-200 flex items-center gap-1 transition active:scale-95"
+              >
+                <Plus className="w-3 h-3 stroke-[2.5]" /> নতুন খরচ
+              </button>
+              <button
+                onClick={() => handleOpenQuickAdd('income')}
+                className="px-3 py-1.5 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 text-[11px] font-bold border border-sky-200 flex items-center gap-1 transition active:scale-95 hidden sm:inline-flex"
+              >
+                <Plus className="w-3 h-3 stroke-[2.5]" /> আয় যোগ
+              </button>
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+            >
+              {renderActiveView()}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar (Fixed for high mobile ergonomics) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 px-3 py-2 flex items-center justify-around shadow-lg pb-[env(safe-area-inset-bottom,0.5rem)]">
+        <button
+          onClick={() => setActiveTab('daily-expense')}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all duration-150 ${
+            activeTab === 'daily-expense'
+              ? 'text-amber-700 font-black bg-amber-50'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Flame className={`w-4 h-4 ${activeTab === 'daily-expense' ? 'text-amber-500 animate-pulse' : 'text-slate-400'}`} />
+          <span className="text-[10px] leading-none">দৈনিক খরচ</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('dashboard')}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all duration-150 ${
+            activeTab === 'dashboard'
+              ? 'text-emerald-700 font-black bg-emerald-50'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-emerald-600' : 'text-slate-400'}`} />
+          <span className="text-[10px] leading-none">ড্যাশবোর্ড</span>
+        </button>
+
+        {/* Center Prominent Add Button */}
+        <button
+          onClick={() => handleOpenQuickAdd('expense')}
+          className="w-11 h-11 -mt-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/40 hover:scale-105 active:scale-95 transition-transform"
+          title="Quick Add"
+        >
+          <Plus className="w-6 h-6 stroke-[2.5]" />
+        </button>
+
+        <button
+          onClick={() => setActiveTab('accounts')}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all duration-150 ${
+            activeTab === 'accounts'
+              ? 'text-emerald-700 font-black bg-emerald-50'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Landmark className={`w-4 h-4 ${activeTab === 'accounts' ? 'text-emerald-600' : 'text-slate-400'}`} />
+          <span className="text-[10px] leading-none">ওয়ালেট</span>
+        </button>
+
+        <button
+          onClick={() => setMobileMenuOpen(true)}
+          className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all duration-150 ${
+            mobileMenuOpen
+              ? 'text-emerald-700 font-black bg-emerald-50'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Menu className="w-4 h-4 text-slate-400" />
+          <span className="text-[10px] leading-none">মেনু</span>
+        </button>
+      </nav>
 
       {/* Global Quick Add Modal */}
       <QuickAddModal

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import {
   Flame,
   LayoutDashboard,
@@ -14,6 +15,8 @@ import {
   Settings,
   Trash2,
   Shield,
+  Layers,
+  Sparkles,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -41,8 +44,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     totalAccountBalance,
   } = useFinance();
 
-  const [showMoreTools, setShowMoreTools] = useState(false);
-
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayExpenseCount = expenses.filter(e => !e.isDeleted && e.date === todayStr).length;
 
@@ -52,31 +53,124 @@ export const Sidebar: React.FC<SidebarProps> = ({
     trashItems.transfers.length +
     trashItems.loans.length;
 
-  // Essential primary navigation items
-  const primaryNavItems = [
+  const navGroups = [
     {
-      id: 'daily-expense',
-      label: 'দৈনিক খরচ (Daily Expense)',
-      icon: Flame,
-      badge: todayExpenseCount > 0 ? `${todayExpenseCount} আজ` : null,
-      isPrimaryHighlight: true,
+      groupTitle: 'দৈনিক ট্র্যাকিং ও খতিয়ান',
+      groupSubtitle: 'Daily Logging & Overview',
+      items: [
+        {
+          id: 'daily-expense',
+          label: 'দৈনিক খরচ ট্র্যাকার',
+          sublabel: 'Daily Micro Expense',
+          icon: Flame,
+          badge: todayExpenseCount > 0 ? `${todayExpenseCount} আজ` : null,
+          isPrimaryHighlight: true,
+        },
+        {
+          id: 'dashboard',
+          label: 'মূল ড্যাশবোর্ড',
+          sublabel: 'Finance Overview',
+          icon: LayoutDashboard,
+          badge: null,
+        },
+        {
+          id: 'transactions',
+          label: 'লেনদেন খতিয়ান',
+          sublabel: 'All Transactions',
+          icon: ReceiptText,
+          badge: null,
+        },
+      ],
     },
-    { id: 'dashboard', label: 'ড্যাশবোর্ড (Dashboard)', icon: LayoutDashboard, badge: null },
-    { id: 'transactions', label: 'সব লেনদেন (Transactions)', icon: ReceiptText, badge: null },
-    { id: 'accounts', label: 'অ্যাকাউন্ট ও ওয়ালেট (Wallets)', icon: Landmark, badge: null },
-    { id: 'budgets', label: 'বাজেট ও ক্যাটাগরি (Budgets)', icon: PieChart, badge: null },
-    { id: 'income-salary', label: 'আয় ও বেতন (Income)', icon: Briefcase, badge: null },
-    { id: 'loans', label: 'ধার-দেনা (Loans)', icon: Handshake, badge: loans.length > 0 ? loans.length : null },
-    { id: 'reports', label: 'রিপোর্ট ও সামারি (Reports)', icon: FileSpreadsheet, badge: null },
-    { id: 'settings', label: 'সেটিংস ও ব্যাকআপ (Settings)', icon: Settings, badge: null },
-  ];
-
-  // Secondary / Advanced tools
-  const secondaryNavItems = [
-    { id: 'investments', label: 'Investments / DPS', icon: TrendingUp, badge: investments.length > 0 ? investments.length : null },
-    { id: 'freelance', label: 'Freelance & Invoices', icon: FileCheck2, badge: null },
-    { id: 'goals', label: 'Savings Goals', icon: Target, badge: null },
-    { id: 'trash', label: 'Trash Bin', icon: Trash2, badge: totalTrashCount > 0 ? totalTrashCount : null, isDangerBadge: true },
+    {
+      groupTitle: 'টাকা ও ওয়ালেট ব্যবস্থাপনা',
+      groupSubtitle: 'Cash Flow & Accounts',
+      items: [
+        {
+          id: 'accounts',
+          label: 'অ্যাকাউন্ট ও ওয়ালেট',
+          sublabel: 'Cash, Bank, bKash',
+          icon: Landmark,
+          badge: null,
+        },
+        {
+          id: 'budgets',
+          label: 'বাজেট ও ক্যাটাগরি',
+          sublabel: 'Spending Limits',
+          icon: PieChart,
+          badge: null,
+        },
+        {
+          id: 'income-salary',
+          label: 'আয় ও চাকরি বেতন',
+          sublabel: 'Salary & Earnings',
+          icon: Briefcase,
+          badge: null,
+        },
+        {
+          id: 'loans',
+          label: 'ধার-দেনা ও ঋণ',
+          sublabel: 'Lend & Borrow',
+          icon: Handshake,
+          badge: loans.length > 0 ? loans.length : null,
+        },
+      ],
+    },
+    {
+      groupTitle: 'ভবিষ্যত সঞ্চয় ও ক্যারিয়ার',
+      groupSubtitle: 'Growth & Invoicing',
+      items: [
+        {
+          id: 'goals',
+          label: 'সঞ্চয়ের লক্ষ্য',
+          sublabel: 'Savings Goals',
+          icon: Target,
+          badge: null,
+        },
+        {
+          id: 'investments',
+          label: 'ইনভেস্টমেন্ট ও ডিপিএস',
+          sublabel: 'DPS & Assets',
+          icon: TrendingUp,
+          badge: investments.length > 0 ? investments.length : null,
+        },
+        {
+          id: 'freelance',
+          label: 'ফ্রিল্যান্সিং ও ইনভয়েস',
+          sublabel: 'Clients & Invoicing',
+          icon: FileCheck2,
+          badge: null,
+        },
+      ],
+    },
+    {
+      groupTitle: 'রিপোর্ট ও সিস্টেম',
+      groupSubtitle: 'Analytics & Settings',
+      items: [
+        {
+          id: 'reports',
+          label: 'রিপোর্ট ও ট্যাক্স সামারি',
+          sublabel: 'Reports & NBR Tax',
+          icon: FileSpreadsheet,
+          badge: null,
+        },
+        {
+          id: 'settings',
+          label: 'সেটিংস ও ব্যাকআপ',
+          sublabel: 'Preferences & Backup',
+          icon: Settings,
+          badge: null,
+        },
+        {
+          id: 'trash',
+          label: 'ট্র্যাশ বিন',
+          sublabel: 'Deleted Records',
+          icon: Trash2,
+          badge: totalTrashCount > 0 ? totalTrashCount : null,
+          isDangerBadge: true,
+        },
+      ],
+    },
   ];
 
   const renderItem = (item: any) => {
@@ -84,90 +178,115 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const isActive = activeTab === item.id;
 
     return (
-      <button
+      <motion.button
         key={item.id}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.98 }}
         onClick={() => {
           onSelectTab(item.id);
           if (onCloseMobile) onCloseMobile();
         }}
-        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 group ${
+        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all duration-150 relative group ${
           isActive
             ? item.isPrimaryHighlight
-              ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-extrabold shadow-xs border border-amber-300 dark:border-amber-700/80'
-              : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold shadow-xs border border-emerald-200/80 dark:border-emerald-800/80'
+              ? 'bg-amber-500/10 text-amber-950 font-bold shadow-xs border border-amber-400/40'
+              : 'bg-emerald-500/10 text-emerald-950 font-bold shadow-xs border border-emerald-500/30'
             : item.isPrimaryHighlight
-            ? 'bg-amber-500/5 hover:bg-amber-500/10 text-amber-900 dark:text-amber-200 font-bold border border-amber-500/20'
-            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
+            ? 'bg-amber-50/70 hover:bg-amber-100/80 text-amber-900 font-semibold border border-amber-200/70'
+            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
         }`}
       >
-        <div className="flex items-center gap-2.5">
-          <Icon
-            className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-              item.isPrimaryHighlight
-                ? 'text-amber-500 animate-pulse'
-                : isActive
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-slate-400 dark:text-slate-500'
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div
+            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+              isActive
+                ? item.isPrimaryHighlight
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'bg-emerald-600 text-white shadow-xs'
+                : item.isPrimaryHighlight
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-800'
             }`}
-          />
-          <span className="truncate">{item.label}</span>
+          >
+            <Icon className="w-3.5 h-3.5" />
+          </div>
+          <div className="truncate">
+            <p className="text-xs font-semibold tracking-tight truncate leading-tight">
+              {item.label}
+            </p>
+            <p className="text-[10px] text-slate-400 font-normal truncate leading-tight">
+              {item.sublabel}
+            </p>
+          </div>
         </div>
 
         {item.badge !== null && (
           <span
-            className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md ${
+            className={`shrink-0 ml-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${
               item.isDangerBadge
-                ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
+                ? 'bg-rose-100 text-rose-700'
                 : item.isPrimaryHighlight
-                ? 'bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100'
-                : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                ? 'bg-amber-200 text-amber-900 font-black'
+                : 'bg-slate-100 text-slate-700 border border-slate-200'
             }`}
           >
             {item.badge}
           </span>
         )}
-      </button>
+      </motion.button>
     );
   };
 
   const content = (
-    <aside className="w-64 flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 select-none">
-      <div className="p-3.5 space-y-1 overflow-y-auto flex-1">
-        <p className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-          প্রধান মেনু (Essential)
-        </p>
-
-        {primaryNavItems.map(renderItem)}
-
-        {/* Optional / More Tools Toggle */}
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={() => setShowMoreTools(!showMoreTools)}
-            className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-lg transition-colors"
-          >
-            <span>অন্যান্য ফিচার (More Tools)</span>
-            {showMoreTools ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-
-          {showMoreTools && (
-            <div className="space-y-1 pt-1 pl-1 border-l-2 border-slate-100 dark:border-slate-800 ml-3">
-              {secondaryNavItems.map(renderItem)}
+    <aside className="w-full lg:w-68 flex flex-col h-full bg-white border-r border-slate-200 select-none">
+      {/* Mobile Drawer Header */}
+      {isOpenMobile && (
+        <div className="lg:hidden p-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs">
+              FC
             </div>
-          )}
+            <span className="text-xs font-bold text-slate-800">FinanceCore মেনু</span>
+          </div>
+          <button
+            onClick={onCloseMobile}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition"
+            aria-label="Close menu"
+          >
+            <ChevronDown className="w-5 h-5 rotate-90" />
+          </button>
         </div>
+      )}
+
+      {/* Navigation Groups */}
+      <div className="p-3 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+        {navGroups.map((group, idx) => (
+          <div key={idx} className="space-y-1">
+            <div className="px-2 pb-1 flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                {group.groupTitle}
+              </span>
+            </div>
+            <div className="space-y-0.5">
+              {group.items.map(renderItem)}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Account Liquid Balance Card */}
-      <div className="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
-        <div className="p-3 rounded-xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-xs">
-          <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
-            <Shield className="w-3 h-3 text-emerald-500" /> মোট নগদ ও ব্যাংক ব্যালেন্স
-          </p>
-          <p className="text-sm font-extrabold text-slate-900 dark:text-white mt-1 font-mono">
+      <div className="p-3 border-t border-slate-200 bg-slate-50/60">
+        <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider flex items-center gap-1">
+              <Shield className="w-3 h-3 text-emerald-600" /> মোট তরল ক্যাশ
+            </p>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Live Synced" />
+          </div>
+          <p className="text-sm font-black text-slate-900 mt-1 font-mono tracking-tight">
             {formatCurrency(totalAccountBalance)}
           </p>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Cash, bKash & Bank মিলিয়ে</p>
+          <p className="text-[10px] text-slate-500 mt-0.5">Cash, bKash & Bank মিলিয়ে</p>
         </div>
       </div>
     </aside>
@@ -183,10 +302,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Drawer */}
       {isOpenMobile && (
         <div className="fixed inset-0 z-50 lg:hidden flex">
-          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs" onClick={onCloseMobile} />
-          <div className="relative z-10 w-72 max-w-[80vw] h-full shadow-2xl animate-slide-in">
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" onClick={onCloseMobile} />
+          <motion.div
+            initial={{ x: -280, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -280, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="relative z-10 w-72 max-w-[85vw] h-full shadow-2xl bg-white"
+          >
             {content}
-          </div>
+          </motion.div>
         </div>
       )}
     </>

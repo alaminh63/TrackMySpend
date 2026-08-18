@@ -32,12 +32,12 @@ export const TrashView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
             <Trash2 className="w-5 h-5 text-rose-500" /> Soft-Delete Trash Bin
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Safely review and restore deleted financial transactions or permanently purge records
           </p>
         </div>
@@ -57,24 +57,24 @@ export const TrashView: React.FC = () => {
       </div>
 
       {totalTrashCount === 0 ? (
-        <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-          <Trash2 className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300">Trash Bin is Empty</h3>
+        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
+          <Trash2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-slate-700">Trash Bin is Empty</h3>
           <p className="text-xs text-slate-400 mt-1">Deleted income, expenses, and loans will be safely preserved here.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {/* Deleted Expenses */}
           {trashItems.expenses.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
               <h3 className="text-xs font-bold uppercase tracking-wider text-rose-500 mb-3 flex items-center gap-2">
                 <TrendingDown className="w-4 h-4" /> Deleted Expenses ({trashItems.expenses.length})
               </h3>
-              <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              <div className="divide-y divide-slate-100 text-xs">
                 {trashItems.expenses.map(e => (
                   <div key={e.id} className="py-3 flex items-center justify-between">
                     <div>
-                      <p className="font-bold text-slate-900 dark:text-white">{e.categoryName}</p>
+                      <p className="font-bold text-slate-900">{e.categoryName}</p>
                       <p className="text-[11px] text-slate-400">{e.date} • {e.notes || 'No description'}</p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -104,15 +104,15 @@ export const TrashView: React.FC = () => {
 
           {/* Deleted Incomes */}
           {trashItems.incomes.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
               <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-500 mb-3 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" /> Deleted Incomes ({trashItems.incomes.length})
               </h3>
-              <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              <div className="divide-y divide-slate-100 text-xs">
                 {trashItems.incomes.map(i => (
                   <div key={i.id} className="py-3 flex items-center justify-between">
                     <div>
-                      <p className="font-bold text-slate-900 dark:text-white">{i.source}</p>
+                      <p className="font-bold text-slate-900">{i.source}</p>
                       <p className="text-[11px] text-slate-400">{i.date} • {i.clientName ? `Client: ${i.clientName}` : i.type}</p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -142,15 +142,15 @@ export const TrashView: React.FC = () => {
 
           {/* Deleted Transfers */}
           {trashItems.transfers.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
               <h3 className="text-xs font-bold uppercase tracking-wider text-sky-500 mb-3 flex items-center gap-2">
                 <ArrowRightLeft className="w-4 h-4" /> Deleted Transfers ({trashItems.transfers.length})
               </h3>
-              <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              <div className="divide-y divide-slate-100 text-xs">
                 {trashItems.transfers.map(t => (
                   <div key={t.id} className="py-3 flex items-center justify-between">
                     <div>
-                      <p className="font-bold text-slate-900 dark:text-white">Internal Transfer</p>
+                      <p className="font-bold text-slate-900">Internal Transfer</p>
                       <p className="text-[11px] text-slate-400">{t.date} • {t.notes || 'Transfer'}</p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -180,15 +180,15 @@ export const TrashView: React.FC = () => {
 
           {/* Deleted Loans */}
           {trashItems.loans.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
               <h3 className="text-xs font-bold uppercase tracking-wider text-amber-500 mb-3 flex items-center gap-2">
                 <Handshake className="w-4 h-4" /> Deleted Loan Records ({trashItems.loans.length})
               </h3>
-              <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              <div className="divide-y divide-slate-100 text-xs">
                 {trashItems.loans.map(l => (
                   <div key={l.id} className="py-3 flex items-center justify-between">
                     <div>
-                      <p className="font-bold text-slate-900 dark:text-white">{l.person} ({l.type})</p>
+                      <p className="font-bold text-slate-900">{l.person} ({l.type})</p>
                       <p className="text-[11px] text-slate-400">{l.date} • {l.notes || 'Loan Record'}</p>
                     </div>
                     <div className="flex items-center gap-4">

@@ -35,13 +35,13 @@ export const Navbar: React.FC<{
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <header className="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand & Mobile Menu Button */}
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleMobileMenu}
-            className="lg:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
             title="Toggle Menu"
           >
             <Menu className="w-5 h-5" />
@@ -56,10 +56,10 @@ export const Navbar: React.FC<{
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">
-                  Finance<span className="text-emerald-600 dark:text-emerald-400">Core</span>
+                <span className="font-extrabold text-base tracking-tight text-slate-900">
+                  Finance<span className="text-emerald-600">Core</span>
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
                   {profile.baseCurrency}
                 </span>
               </div>
@@ -72,12 +72,12 @@ export const Navbar: React.FC<{
         <div className="hidden md:flex items-center">
           <button
             onClick={() => onSelectTab('accounts')}
-            className="flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 transition"
+            className="flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200 hover:border-emerald-400 transition"
           >
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-500" /> Total Net Worth:
             </span>
-            <span className="text-sm font-extrabold text-slate-900 dark:text-white">
+            <span className="text-sm font-extrabold text-slate-900">
               {formatCurrency(netWorth)}
             </span>
           </button>
@@ -88,7 +88,7 @@ export const Navbar: React.FC<{
           {/* Multi-Currency Converter button */}
           <button
             onClick={() => onSelectTab('daily-expense')}
-            className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1.5 text-xs font-bold transition"
+            className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 border border-amber-500/30 flex items-center gap-1.5 text-xs font-bold transition"
             title="Daily Micro Expense Tracker"
           >
             <span className="text-amber-500 font-black">⚡</span>
@@ -97,7 +97,7 @@ export const Navbar: React.FC<{
 
           <button
             onClick={onOpenCurrencyConverter}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 flex items-center gap-1.5 text-xs font-semibold"
+            className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center gap-1.5 text-xs font-semibold"
             title="Currency Rates & Converter"
           >
             <DollarSign className="w-4 h-4 text-emerald-500" />
@@ -108,7 +108,7 @@ export const Navbar: React.FC<{
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 relative"
+              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 border border-slate-200 relative"
               title="Notifications & Reminders"
             >
               <Bell className="w-4 h-4" />
@@ -120,9 +120,9 @@ export const Navbar: React.FC<{
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-4 z-50">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 z-50">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
                     <Bell className="w-3.5 h-3.5 text-emerald-500" /> Alerts & Reminders ({notifications.length})
                   </h4>
                   {unreadCount > 0 && (
@@ -135,7 +135,7 @@ export const Navbar: React.FC<{
                   )}
                 </div>
 
-                <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 my-2">
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 my-2">
                   {notifications.length === 0 ? (
                     <p className="text-xs text-slate-400 py-6 text-center">No alerts at this time.</p>
                   ) : (
@@ -149,15 +149,15 @@ export const Navbar: React.FC<{
                             setShowNotifications(false);
                           }
                         }}
-                        className={`py-2.5 px-1.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-lg transition ${
-                          !n.isRead ? 'bg-emerald-50/40 dark:bg-emerald-950/20' : ''
+                        className={`py-2.5 px-1.5 cursor-pointer hover:bg-slate-50  rounded-lg transition ${
+                          !n.isRead ? 'bg-emerald-50/40 ' : ''
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="text-xs font-bold text-slate-900 dark:text-slate-100">{n.title}</p>
+                          <p className="text-xs font-bold text-slate-900">{n.title}</p>
                           <span className="text-[10px] text-slate-400 shrink-0">{n.date}</span>
                         </div>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{n.message}</p>
+                        <p className="text-xs text-slate-600 mt-0.5">{n.message}</p>
                       </div>
                     ))
                   )}
@@ -179,7 +179,7 @@ export const Navbar: React.FC<{
           {profile.isPinLocked && (
             <button
               onClick={lockApp}
-              className="p-2 rounded-xl text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-slate-200 dark:border-slate-700/80"
+              className="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200"
               title="Lock Application Now"
             >
               <Lock className="w-4 h-4" />
@@ -189,13 +189,13 @@ export const Navbar: React.FC<{
           {/* User Profile Pill */}
           <button
             onClick={() => onSelectTab('settings')}
-            className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-xl hover:bg-slate-100 transition"
             title="User Profile & Settings"
           >
             <div className="w-7 h-7 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">
               {profile.name.charAt(0)}
             </div>
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 hidden lg:inline">
+            <span className="text-xs font-bold text-slate-700 hidden lg:inline">
               {profile.name.split(' ')[0]}
             </span>
           </button>

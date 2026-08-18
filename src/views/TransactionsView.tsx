@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Search,
   Filter,
@@ -178,6 +179,14 @@ export const TransactionsView: React.FC<{
     });
   }, [unifiedList, activeTab, searchQuery, selectedCategory, selectedAccount, dateFrom, dateTo, sortBy]);
 
+  const filteredIncomeTotal = useMemo(() => {
+    return filteredList.filter(i => i.type === 'income').reduce((s, i) => s + (i.convertedAmount || 0), 0);
+  }, [filteredList]);
+
+  const filteredExpenseTotal = useMemo(() => {
+    return filteredList.filter(i => i.type === 'expense').reduce((s, i) => s + (i.convertedAmount || 0), 0);
+  }, [filteredList]);
+
   const handleDeleteItem = (item: UnifiedTx) => {
     if (confirm(`Move "${item.title}" to trash?`)) {
       if (item.type === 'income') deleteIncome(item.id);
@@ -212,12 +221,12 @@ export const TransactionsView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header & Quick Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">
+          <h1 className="text-xl font-extrabold text-slate-900">
             Transactions & Ledgers
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Complete transaction record with multi-currency receipts, split expenses, and soft-delete trash protection
           </p>
         </div>
@@ -228,14 +237,14 @@ export const TransactionsView: React.FC<{
             className={`px-3 py-2 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition ${
               showQuickLogger
                 ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
-                : 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20'
+                : 'border-amber-500/30 bg-amber-500/10 text-amber-700  hover:bg-amber-500/20'
             }`}
           >
             <span>⚡ দৈনিক ইনস্ট্যান্ট এন্ট্রি</span>
           </button>
           <button
             onClick={handleExportCsv}
-            className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 flex items-center gap-1.5"
+            className="px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1.5"
             title="Download CSV statement"
           >
             <Download className="w-3.5 h-3.5 text-emerald-500" /> Export CSV
@@ -257,14 +266,14 @@ export const TransactionsView: React.FC<{
       )}
 
       {/* Tabs & Search Filter Controls */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-4">
         {/* Type Tabs */}
-        <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+        <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
             <button
               onClick={() => setActiveTab('all')}
               className={`px-3 py-1.5 rounded-lg transition ${
-                activeTab === 'all' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'
+                activeTab === 'all' ? 'bg-white  text-slate-900  font-bold shadow-xs' : 'text-slate-600 '
               }`}
             >
               All ({unifiedList.length})
@@ -272,7 +281,7 @@ export const TransactionsView: React.FC<{
             <button
               onClick={() => setActiveTab('expense')}
               className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
-                activeTab === 'expense' ? 'bg-rose-500 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'
+                activeTab === 'expense' ? 'bg-rose-500 text-white font-bold shadow-xs' : 'text-slate-600 '
               }`}
             >
               <TrendingDown className="w-3 h-3" /> Expenses ({expenses.length})
@@ -280,7 +289,7 @@ export const TransactionsView: React.FC<{
             <button
               onClick={() => setActiveTab('income')}
               className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
-                activeTab === 'income' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'
+                activeTab === 'income' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-slate-600 '
               }`}
             >
               <TrendingUp className="w-3 h-3" /> Income ({incomes.length})
@@ -288,7 +297,7 @@ export const TransactionsView: React.FC<{
             <button
               onClick={() => setActiveTab('transfer')}
               className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1 ${
-                activeTab === 'transfer' ? 'bg-sky-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'
+                activeTab === 'transfer' ? 'bg-sky-600 text-white font-bold shadow-xs' : 'text-slate-600 '
               }`}
             >
               <ArrowRightLeft className="w-3 h-3" /> Transfers ({transfers.length})
@@ -318,7 +327,7 @@ export const TransactionsView: React.FC<{
               placeholder="Search description, tag, client..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
 
@@ -326,7 +335,7 @@ export const TransactionsView: React.FC<{
           <select
             value={selectedAccount}
             onChange={e => setSelectedAccount(e.target.value)}
-            className="text-xs px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="text-xs px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900"
           >
             <option value="all">All Accounts</option>
             {accounts.map(acc => (
@@ -340,7 +349,7 @@ export const TransactionsView: React.FC<{
             value={dateFrom}
             onChange={e => setDateFrom(e.target.value)}
             placeholder="From date"
-            className="text-xs px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="text-xs px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900"
           />
 
           {/* Date To */}
@@ -349,14 +358,14 @@ export const TransactionsView: React.FC<{
             value={dateTo}
             onChange={e => setDateTo(e.target.value)}
             placeholder="To date"
-            className="text-xs px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="text-xs px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900"
           />
 
           {/* Sort By */}
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value as any)}
-            className="text-xs px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+            className="text-xs px-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 font-semibold"
           >
             <option value="date_desc">Latest First (Date ↓)</option>
             <option value="date_asc">Oldest First (Date ↑)</option>
@@ -364,13 +373,169 @@ export const TransactionsView: React.FC<{
             <option value="amount_asc">Lowest Amount (Amt ↑)</option>
           </select>
         </div>
+
+        {/* Live Filter Summary Pills */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-slate-500 font-medium">Filtered Results: <strong>{filteredList.length}</strong> items</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+              +{formatCurrency(filteredIncomeTotal)} Inflow
+            </span>
+            <span className="text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+              -{formatCurrency(filteredExpenseTotal)} Outflow
+            </span>
+          </div>
+
+          {(searchQuery || selectedCategory !== 'all' || selectedAccount !== 'all' || dateFrom || dateTo) && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('all');
+                setSelectedAccount('all');
+                setDateFrom('');
+                setDateTo('');
+              }}
+              className="text-xs text-slate-500 hover:text-slate-800 font-bold underline flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" /> Reset Filters
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Transaction Records Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
+      {/* Transaction Records Table (Desktop) & Card List (Mobile) */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        {/* Mobile Card List View */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {filteredList.length === 0 ? (
+            <div className="text-center py-12 text-slate-400 text-xs">
+              No transactions match your search filter criteria.
+            </div>
+          ) : (
+            filteredList.map(item => {
+              const isSelected = selectedIds.includes(item.id);
+              const isExpense = item.type === 'expense';
+              const isIncome = item.type === 'income';
+
+              return (
+                <div
+                  key={item.id}
+                  className={`p-3.5 flex flex-col gap-2.5 transition ${
+                    isSelected ? 'bg-emerald-50/40' : 'hover:bg-slate-50/70'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={e => {
+                          if (e.target.checked) setSelectedIds(prev => [...prev, item.id]);
+                          else setSelectedIds(prev => prev.filter(id => id !== item.id));
+                        }}
+                        className="rounded text-emerald-600 mt-1"
+                      />
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                          isIncome
+                            ? 'bg-emerald-100 text-emerald-600'
+                            : isExpense
+                            ? 'bg-rose-100 text-rose-600'
+                            : 'bg-sky-100 text-sky-600'
+                        }`}
+                      >
+                        {isIncome && <TrendingUp className="w-4 h-4" />}
+                        {isExpense && <TrendingDown className="w-4 h-4" />}
+                        {item.type === 'transfer' && <ArrowRightLeft className="w-4 h-4" />}
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 text-xs truncate">
+                          {item.title}
+                        </p>
+                        <p className="text-[11px] text-slate-500 truncate">
+                          {item.subTitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span
+                        className={`text-sm font-extrabold block ${
+                          isIncome
+                            ? 'text-emerald-600'
+                            : isExpense
+                            ? 'text-rose-600'
+                            : 'text-sky-600'
+                        }`}
+                      >
+                        {isIncome ? '+' : isExpense ? '-' : ''}
+                        {formatCurrency(item.convertedAmount)}
+                      </span>
+                      {item.currency !== profile.baseCurrency && (
+                        <span className="block text-[10px] text-slate-400 font-mono">
+                          {item.currency} {item.amount.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Metadata Row: Date, Account & Actions */}
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-100/80 text-[11px] text-slate-500">
+                    <div className="flex items-center flex-wrap gap-1.5">
+                      <span className="font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
+                        {item.date}
+                      </span>
+                      <span className="font-semibold text-slate-700">
+                        {item.accountName}
+                      </span>
+
+                      {item.receiptUrl && (
+                        <button
+                          onClick={() => setViewReceipt({ url: item.receiptUrl!, name: item.receiptName || 'Receipt' })}
+                          className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px] flex items-center gap-1"
+                        >
+                          <FileText className="w-3 h-3" /> Receipt
+                        </button>
+                      )}
+
+                      {item.isShared && (
+                        <span className="px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 text-[10px] font-bold">
+                          Split
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {item.type !== 'transfer' && (
+                        <button
+                          onClick={() => handleDuplicateItem(item)}
+                          className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                          title="Duplicate"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteItem(item)}
+                        className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 uppercase font-bold text-[10px] tracking-wider">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-bold text-[10px] tracking-wider">
               <tr>
                 <th className="p-3.5 w-10 text-center">
                   <input
@@ -392,7 +557,7 @@ export const TransactionsView: React.FC<{
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
               {filteredList.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12 text-slate-400">
@@ -408,8 +573,8 @@ export const TransactionsView: React.FC<{
                   return (
                     <tr
                       key={item.id}
-                      className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition ${
-                        isSelected ? 'bg-emerald-50/30 dark:bg-emerald-950/20' : ''
+                      className={`hover:bg-slate-50/80 transition ${
+                        isSelected ? 'bg-emerald-50/30' : ''
                       }`}
                     >
                       {/* Checkbox */}
@@ -426,7 +591,7 @@ export const TransactionsView: React.FC<{
                       </td>
 
                       {/* Date */}
-                      <td className="p-3.5 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+                      <td className="p-3.5 whitespace-nowrap text-slate-500 font-mono text-[11px]">
                         {item.date}
                       </td>
 
@@ -436,10 +601,10 @@ export const TransactionsView: React.FC<{
                           <div
                             className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
                               isIncome
-                                ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600'
+                                ? 'bg-emerald-100 text-emerald-600'
                                 : isExpense
-                                ? 'bg-rose-100 dark:bg-rose-950 text-rose-600'
-                                : 'bg-sky-100 dark:bg-sky-950 text-sky-600'
+                                ? 'bg-rose-100 text-rose-600'
+                                : 'bg-sky-100 text-sky-600'
                             }`}
                           >
                             {isIncome && <TrendingUp className="w-3.5 h-3.5" />}
@@ -448,10 +613,10 @@ export const TransactionsView: React.FC<{
                           </div>
 
                           <div>
-                            <p className="font-bold text-slate-900 dark:text-slate-100 text-xs">
+                            <p className="font-bold text-slate-900 text-xs">
                               {item.title}
                             </p>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            <p className="text-[11px] text-slate-500">
                               {item.subTitle}
                             </p>
 
@@ -461,7 +626,7 @@ export const TransactionsView: React.FC<{
                                 {item.tags.map(t => (
                                   <span
                                     key={t}
-                                    className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                                    className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600"
                                   >
                                     #{t}
                                   </span>
@@ -474,7 +639,7 @@ export const TransactionsView: React.FC<{
 
                       {/* Account */}
                       <td className="p-3.5 whitespace-nowrap">
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                        <span className="font-semibold text-slate-700">
                           {item.accountName}
                         </span>
                         <span className="block text-[10px] text-slate-400">{item.categoryOrPlatform}</span>
@@ -485,10 +650,10 @@ export const TransactionsView: React.FC<{
                         <span
                           className={`text-sm font-extrabold ${
                             isIncome
-                              ? 'text-emerald-600 dark:text-emerald-400'
+                              ? 'text-emerald-600'
                               : isExpense
-                              ? 'text-rose-600 dark:text-rose-400'
-                              : 'text-sky-600 dark:text-sky-400'
+                              ? 'text-rose-600'
+                              : 'text-sky-600'
                           }`}
                         >
                           {isIncome ? '+' : isExpense ? '-' : ''}
@@ -516,7 +681,7 @@ export const TransactionsView: React.FC<{
 
                           {item.isShared && (
                             <span
-                              className="px-1.5 py-0.5 rounded bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 text-[10px] font-bold flex items-center gap-0.5"
+                              className="px-1.5 py-0.5 rounded bg-violet-100 text-violet-700 text-[10px] font-bold flex items-center gap-0.5"
                               title={`Shared with: ${item.sharedWith || 'Family'}`}
                             >
                               <Users className="w-3 h-3" /> Split
@@ -537,7 +702,7 @@ export const TransactionsView: React.FC<{
                           {item.type !== 'transfer' && (
                             <button
                               onClick={() => handleDuplicateItem(item)}
-                              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
+                              className="p-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-700"
                               title="Duplicate Entry"
                             >
                               <Copy className="w-3.5 h-3.5" />
@@ -545,7 +710,7 @@ export const TransactionsView: React.FC<{
                           )}
                           <button
                             onClick={() => handleDeleteItem(item)}
-                            className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950 hover:text-rose-600"
+                            className="p-1.5 rounded-lg hover:bg-rose-50 hover:text-rose-600"
                             title="Move to Trash"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

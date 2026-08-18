@@ -128,12 +128,12 @@ export const FreelanceView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
             <FileCheck2 className="w-5 h-5 text-emerald-600" /> Freelance, Clients & Invoicing
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Client billing records, automated invoice generation, and 1-click PDF exports
           </p>
         </div>
@@ -141,7 +141,7 @@ export const FreelanceView: React.FC<{
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowClientModal(true)}
-            className="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1.5"
           >
             <Building className="w-3.5 h-3.5 text-emerald-500" /> Add Client
           </button>
@@ -155,11 +155,11 @@ export const FreelanceView: React.FC<{
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit text-xs font-semibold">
+      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-fit text-xs font-semibold">
         <button
           onClick={() => setActiveTab('invoices')}
           className={`px-3 py-1.5 rounded-lg transition ${
-            activeTab === 'invoices' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'
+            activeTab === 'invoices' ? 'bg-white  text-slate-900  font-bold shadow-xs' : 'text-slate-600 '
           }`}
         >
           Invoices ({invoices.length})
@@ -167,7 +167,7 @@ export const FreelanceView: React.FC<{
         <button
           onClick={() => setActiveTab('clients')}
           className={`px-3 py-1.5 rounded-lg transition ${
-            activeTab === 'clients' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400'
+            activeTab === 'clients' ? 'bg-white  text-slate-900  font-bold shadow-xs' : 'text-slate-600 '
           }`}
         >
           Clients Directory ({clients.length})
@@ -176,10 +176,10 @@ export const FreelanceView: React.FC<{
 
       {/* Invoices Tab */}
       {activeTab === 'invoices' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-bold text-[10px]">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 uppercase font-bold text-[10px]">
                 <tr>
                   <th className="p-3.5">Invoice #</th>
                   <th className="p-3.5">Client Name</th>
@@ -189,7 +189,7 @@ export const FreelanceView: React.FC<{
                   <th className="p-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100">
                 {invoices.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-10 text-center text-slate-400">
@@ -200,12 +200,12 @@ export const FreelanceView: React.FC<{
                   invoices.map(inv => {
                     const isPaid = inv.status === 'Paid';
                     return (
-                      <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td className="p-3.5 font-mono font-bold text-slate-900 dark:text-white">
+                      <tr key={inv.id} className="hover:bg-slate-50">
+                        <td className="p-3.5 font-mono font-bold text-slate-900">
                           {inv.invoiceNumber}
                         </td>
                         <td className="p-3.5">
-                          <p className="font-bold text-slate-900 dark:text-white">{inv.clientName}</p>
+                          <p className="font-bold text-slate-900">{inv.clientName}</p>
                           <p className="text-[11px] text-slate-400">{inv.clientEmail || 'No email'}</p>
                         </td>
                         <td className="p-3.5 text-slate-500 font-mono text-[11px]">
@@ -213,7 +213,7 @@ export const FreelanceView: React.FC<{
                           <p className="text-[10px] text-amber-500">Due: {inv.dueDate}</p>
                         </td>
                         <td className="p-3.5 text-right">
-                          <p className="font-extrabold text-slate-900 dark:text-white text-sm">
+                          <p className="font-extrabold text-slate-900 text-sm">
                             {inv.currency} {inv.totalAmount.toLocaleString()}
                           </p>
                           <p className="text-[10px] text-emerald-600 font-semibold">
@@ -224,9 +224,9 @@ export const FreelanceView: React.FC<{
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               isPaid
-                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                ? 'bg-emerald-100 text-emerald-700  '
                                 : inv.status === 'Sent'
-                                ? 'bg-sky-100 text-sky-700 dark:bg-sky-950'
+                                ? 'bg-sky-100 text-sky-700 '
                                 : inv.status === 'Overdue'
                                 ? 'bg-rose-100 text-rose-700'
                                 : 'bg-slate-100 text-slate-700'
@@ -239,7 +239,7 @@ export const FreelanceView: React.FC<{
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleDownloadPdf(inv)}
-                              className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1"
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1"
                               title="Download PDF"
                             >
                               <Download className="w-3 h-3 text-emerald-500" /> PDF
@@ -248,7 +248,7 @@ export const FreelanceView: React.FC<{
                             {!isPaid && (
                               <button
                                 onClick={() => updateInvoiceStatus(inv.id, 'Paid')}
-                                className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-600 hover:bg-emerald-100 text-xs font-bold flex items-center gap-1"
+                                className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs font-bold flex items-center gap-1"
                               >
                                 <Check className="w-3 h-3" /> Mark Paid
                               </button>
@@ -282,20 +282,20 @@ export const FreelanceView: React.FC<{
           {clients.map(client => (
             <div
               key={client.id}
-              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between"
+              className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 font-bold flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 font-bold flex items-center justify-center">
                     {client.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">{client.name}</h4>
+                    <h4 className="font-bold text-sm text-slate-900">{client.name}</h4>
                     <p className="text-[11px] text-slate-400">{client.country || 'Global Client'}</p>
                   </div>
                 </div>
 
-                <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300 my-3">
+                <div className="space-y-1 text-xs text-slate-600 my-3">
                   {client.email && (
                     <p className="flex items-center gap-1.5 text-slate-500">
                       <Mail className="w-3.5 h-3.5 text-slate-400" /> {client.email}
@@ -307,7 +307,7 @@ export const FreelanceView: React.FC<{
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
+              <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
                 <span className="text-[10px] text-slate-400">Currency: {client.defaultCurrency}</span>
                 <button
                   onClick={() => {
@@ -327,50 +327,50 @@ export const FreelanceView: React.FC<{
 
       {/* Add Client Modal */}
       {showClientModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4">
-          <form onSubmit={handleSaveClient} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Add Freelance Client</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+          <form onSubmit={handleSaveClient} className="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
+            <h3 className="text-base font-bold text-slate-900">Add Freelance Client</h3>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Company / Client Name *</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Company / Client Name *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Nexus Cloud Labs"
                 value={clientName}
                 onChange={e => setClientName(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Billing Email</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Billing Email</label>
               <input
                 type="email"
                 placeholder="billing@client.com"
                 value={clientEmail}
                 onChange={e => setClientEmail(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Country</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Country</label>
                 <input
                   type="text"
                   value={clientCountry}
                   onChange={e => setClientCountry(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Billing Currency</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Billing Currency</label>
                 <select
                   value={clientCurrency}
                   onChange={e => setClientCurrency(e.target.value as CurrencyCode)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 >
                   <option value="USD">USD ($)</option>
                   <option value="EUR">EUR (€)</option>
@@ -382,20 +382,20 @@ export const FreelanceView: React.FC<{
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Hourly Rate</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Hourly Rate</label>
               <input
                 type="number"
                 value={clientHourlyRate}
                 onChange={e => setClientHourlyRate(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
               <button
                 type="button"
                 onClick={() => setShowClientModal(false)}
-                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400"
+                className="px-4 py-2 text-xs font-medium text-slate-600"
               >
                 Cancel
               </button>
@@ -412,17 +412,17 @@ export const FreelanceView: React.FC<{
 
       {/* Add Invoice Modal */}
       {showInvoiceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 overflow-y-auto">
-          <form onSubmit={handleSaveInvoice} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl p-6 space-y-4 my-6 max-h-[85vh] overflow-y-auto">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Create Freelance Invoice</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
+          <form onSubmit={handleSaveInvoice} className="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl shadow-2xl p-6 space-y-4 my-6 max-h-[85vh] overflow-y-auto">
+            <h3 className="text-base font-bold text-slate-900">Create Freelance Invoice</h3>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Client *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Client *</label>
                 <select
                   value={selectedClientId}
                   onChange={e => setSelectedClientId(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 >
                   {clients.map(c => (
                     <option key={c.id} value={c.id}>{c.name} ({c.defaultCurrency})</option>
@@ -431,44 +431,44 @@ export const FreelanceView: React.FC<{
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Invoice Number *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Invoice Number *</label>
                 <input
                   type="text"
                   required
                   value={invoiceNumber}
                   onChange={e => setInvoiceNumber(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 font-mono"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Issue Date</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Issue Date</label>
                 <input
                   type="date"
                   value={issueDate}
                   onChange={e => setIssueDate(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Due Date</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Due Date</label>
                 <input
                   type="date"
                   value={dueDate}
                   onChange={e => setDueDate(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Currency</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Currency</label>
                 <select
                   value={invoiceCurrency}
                   onChange={e => setInvoiceCurrency(e.target.value as CurrencyCode)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 >
                   <option value="USD">USD ($)</option>
                   <option value="EUR">EUR (€)</option>
@@ -482,7 +482,7 @@ export const FreelanceView: React.FC<{
             {/* Line Items */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-900 dark:text-white">Invoice Items</label>
+                <label className="text-xs font-bold text-slate-900">Invoice Items</label>
                 <button
                   type="button"
                   onClick={handleAddLineItem}
@@ -501,7 +501,7 @@ export const FreelanceView: React.FC<{
                         placeholder="Description of work"
                         value={item.description}
                         onChange={e => handleUpdateLineItem(idx, 'description', e.target.value)}
-                        className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                        className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                       />
                     </div>
                     <div className="col-span-2">
@@ -510,7 +510,7 @@ export const FreelanceView: React.FC<{
                         placeholder="Qty/Hrs"
                         value={item.quantity}
                         onChange={e => handleUpdateLineItem(idx, 'quantity', parseFloat(e.target.value) || 0)}
-                        className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                        className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                       />
                     </div>
                     <div className="col-span-2">
@@ -519,10 +519,10 @@ export const FreelanceView: React.FC<{
                         placeholder="Rate"
                         value={item.unitPrice}
                         onChange={e => handleUpdateLineItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)}
-                        className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                        className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                       />
                     </div>
-                    <div className="col-span-2 flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
+                    <div className="col-span-2 flex items-center justify-between text-xs font-bold text-slate-900">
                       <span>{item.total}</span>
                       <button
                         type="button"
@@ -536,26 +536,26 @@ export const FreelanceView: React.FC<{
                 ))}
               </div>
 
-              <div className="text-right pt-2 text-sm font-extrabold text-slate-900 dark:text-white">
+              <div className="text-right pt-2 text-sm font-extrabold text-slate-900">
                 Total: {invoiceCurrency} {invoiceTotalAmount.toLocaleString()}
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Payment Instructions & Notes</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Payment Instructions & Notes</label>
               <textarea
                 rows={2}
                 value={invoiceNotes}
                 onChange={e => setInvoiceNotes(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
               <button
                 type="button"
                 onClick={() => setShowInvoiceModal(false)}
-                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400"
+                className="px-4 py-2 text-xs font-medium text-slate-600"
               >
                 Cancel
               </button>

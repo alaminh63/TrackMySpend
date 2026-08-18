@@ -133,19 +133,19 @@ export const ReportsView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5 text-emerald-600" /> Financial Reports & Tax Estimation
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             P&L Cashflow statements, annual tax brackets, and official PDF/CSV audit reports
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {/* Period Selector */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-bold">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
             <select
               value={reportMonth}
               onChange={e => setReportMonth(e.target.value)}
@@ -168,7 +168,7 @@ export const ReportsView: React.FC = () => {
 
           <button
             onClick={() => exportTransactionsCsv(incomes, expenses, profile.baseCurrency)}
-            className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 flex items-center gap-1.5"
+            className="px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" /> CSV
           </button>
@@ -184,19 +184,19 @@ export const ReportsView: React.FC = () => {
 
       {/* Monthly Financial Statement Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="p-4 rounded-xl bg-white border border-slate-200">
           <p className="text-[11px] font-bold uppercase text-slate-400">Total Month Revenue</p>
-          <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{formatCurrency(monthTotalIncome)}</p>
+          <p className="text-2xl font-black text-emerald-600 mt-1">{formatCurrency(monthTotalIncome)}</p>
           <p className="text-[10px] text-slate-400 mt-0.5">{monthlyIncomes.length} income deposits</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="p-4 rounded-xl bg-white border border-slate-200">
           <p className="text-[11px] font-bold uppercase text-slate-400">Total Month Outflow</p>
-          <p className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{formatCurrency(monthTotalExpense)}</p>
+          <p className="text-2xl font-black text-rose-600 mt-1">{formatCurrency(monthTotalExpense)}</p>
           <p className="text-[10px] text-slate-400 mt-0.5">{monthlyExpenses.length} expense items</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="p-4 rounded-xl bg-white border border-slate-200">
           <p className="text-[11px] font-bold uppercase text-slate-400">Net Month Savings</p>
           <p className={`text-2xl font-black mt-1 ${monthNetSavings >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
             {formatCurrency(monthNetSavings)}
@@ -204,16 +204,16 @@ export const ReportsView: React.FC = () => {
           <p className="text-[10px] text-slate-400 mt-0.5">Surplus saved</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="p-4 rounded-xl bg-white border border-slate-200">
           <p className="text-[11px] font-bold uppercase text-slate-400">Savings Rate</p>
-          <p className="text-2xl font-black text-sky-600 dark:text-sky-400 mt-1">{monthSavingsRate.toFixed(1)}%</p>
+          <p className="text-2xl font-black text-sky-600 mt-1">{monthSavingsRate.toFixed(1)}%</p>
           <p className="text-[10px] text-slate-400 mt-0.5">Retained of earned capital</p>
         </div>
       </div>
 
       {/* Annual Monthly Comparison Chart */}
-      <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4">
+      <div className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs">
+        <h3 className="text-sm font-bold text-slate-900 mb-4">
           Annual Year-to-Date Cashflow Summary ({reportYear})
         </h3>
 
@@ -234,14 +234,14 @@ export const ReportsView: React.FC = () => {
       </div>
 
       {/* Category Breakdown Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3">
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <h3 className="text-sm font-bold text-slate-900 mb-3">
           Detailed Category Outflow Distribution ({selectedMonthKey})
         </h3>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-bold text-[10px]">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 uppercase font-bold text-[10px]">
               <tr>
                 <th className="p-3">Category</th>
                 <th className="p-3 text-right">Amount</th>
@@ -249,14 +249,14 @@ export const ReportsView: React.FC = () => {
                 <th className="p-3">Share Visual</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+            <tbody className="divide-y divide-slate-100 font-medium">
               {categorySummary.map(c => (
-                <tr key={c.name} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="p-3 font-bold text-slate-900 dark:text-white">{c.name}</td>
-                  <td className="p-3 text-right font-extrabold text-slate-900 dark:text-white">{formatCurrency(c.amount)}</td>
+                <tr key={c.name} className="hover:bg-slate-50">
+                  <td className="p-3 font-bold text-slate-900">{c.name}</td>
+                  <td className="p-3 text-right font-extrabold text-slate-900">{formatCurrency(c.amount)}</td>
                   <td className="p-3 text-right text-slate-500">{c.pct.toFixed(1)}%</td>
                   <td className="p-3 w-48">
-                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div className="h-full bg-rose-500 rounded-full" style={{ width: `${c.pct}%` }} />
                     </div>
                   </td>
@@ -268,46 +268,46 @@ export const ReportsView: React.FC = () => {
       </div>
 
       {/* Bangladesh Tax Estimation Module */}
-      <div className="p-6 bg-slate-900 text-white rounded-2xl border border-slate-800 shadow-xl">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="p-6 bg-white text-slate-900 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
               Tax Advisory Engine
             </span>
-            <h3 className="text-base font-extrabold text-white mt-1">
+            <h3 className="text-base font-extrabold text-slate-900 mt-1">
               Bangladesh Income Tax (NBR) Liability Estimation
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5">
               Based on Bangladesh Income Tax Act 2023 for individual resident taxpayers
             </p>
           </div>
 
-          <ShieldCheck className="w-8 h-8 text-emerald-400 shrink-0" />
+          <ShieldCheck className="w-8 h-8 text-emerald-600 shrink-0" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 text-xs">
-          <div className="p-3.5 bg-slate-800/80 rounded-xl border border-slate-700">
-            <span className="text-slate-400 font-bold uppercase text-[10px]">Annualized Salary Gross</span>
-            <p className="text-lg font-black text-white mt-1">{formatCurrency(annualSalaryGross)}</p>
+          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+            <span className="text-slate-500 font-bold uppercase text-[10px]">Annualized Salary Gross</span>
+            <p className="text-lg font-black text-slate-900 mt-1">{formatCurrency(annualSalaryGross)}</p>
             <p className="text-[10px] text-slate-400 mt-1">Tax exempt threshold: ৳3,50,000</p>
           </div>
 
-          <div className="p-3.5 bg-slate-800/80 rounded-xl border border-slate-700">
-            <span className="text-slate-400 font-bold uppercase text-[10px]">Annual Freelance Earnings</span>
-            <p className="text-lg font-black text-emerald-400 mt-1">{formatCurrency(annualFreelanceTotal)}</p>
-            <p className="text-[10px] text-emerald-400 mt-1">Tax-Exempt IT/Software Export Remittance</p>
+          <div className="p-3.5 bg-emerald-50/50 rounded-xl border border-emerald-100">
+            <span className="text-emerald-700 font-bold uppercase text-[10px]">Annual Freelance Earnings</span>
+            <p className="text-lg font-black text-emerald-700 mt-1">{formatCurrency(annualFreelanceTotal)}</p>
+            <p className="text-[10px] text-emerald-600 mt-1">Tax-Exempt IT/Software Export Remittance</p>
           </div>
 
-          <div className="p-3.5 bg-slate-800/80 rounded-xl border border-slate-700">
-            <span className="text-slate-400 font-bold uppercase text-[10px]">Est. Annual Salary Tax</span>
-            <p className="text-lg font-black text-amber-400 mt-1">{formatCurrency(estimatedAnnualTaxLiability)}</p>
-            <p className="text-[10px] text-slate-400 mt-1">Deducted at source (TDS): {formatCurrency(annualSalaryTaxDeducted)}</p>
+          <div className="p-3.5 bg-amber-50/50 rounded-xl border border-amber-100">
+            <span className="text-amber-700 font-bold uppercase text-[10px]">Est. Annual Salary Tax</span>
+            <p className="text-lg font-black text-amber-700 mt-1">{formatCurrency(estimatedAnnualTaxLiability)}</p>
+            <p className="text-[10px] text-amber-600 mt-1">Deducted at source (TDS): {formatCurrency(annualSalaryTaxDeducted)}</p>
           </div>
         </div>
 
-        <div className="mt-4 p-3 rounded-xl bg-slate-800/40 border border-slate-700 text-xs text-slate-300">
-          <p className="font-bold text-white mb-1">Tax Return (IT-10B) Filing Note:</p>
-          <p className="text-[11px] text-slate-400">
+        <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600">
+          <p className="font-bold text-slate-800 mb-1">Tax Return (IT-10B) Filing Note:</p>
+          <p className="text-[11px] text-slate-500">
             Foreign remittance through official banking channels/MFS for software development is 100% tax-free under current statutory regulatory orders. All salary tax deducted at source by your employer should be claimed against your tax challan during annual return filing.
           </p>
         </div>

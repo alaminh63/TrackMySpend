@@ -189,30 +189,30 @@ export const QuickAddModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden my-6">
         {/* Header with 4 Tab Selector */}
-        <div className="bg-slate-50 dark:bg-slate-800/80 px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Quick Entry</h3>
+            <h3 className="text-base font-bold text-slate-900">Quick Entry</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Type Tabs */}
-        <div className="grid grid-cols-4 gap-1 p-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/60 text-xs font-semibold">
+        <div className="grid grid-cols-4 gap-1 p-2 bg-slate-100 border-b border-slate-200 text-xs font-semibold">
           <button
             type="button"
             onClick={() => setActiveTab('expense')}
             className={`py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition ${
               activeTab === 'expense'
                 ? 'bg-rose-500 text-white shadow-sm font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700'
+                : 'text-slate-600  hover:bg-white/50 '
             }`}
           >
             <TrendingDown className="w-3.5 h-3.5" /> Expense
@@ -223,7 +223,7 @@ export const QuickAddModal: React.FC<{
             className={`py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition ${
               activeTab === 'income'
                 ? 'bg-emerald-600 text-white shadow-sm font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700'
+                : 'text-slate-600  hover:bg-white/50 '
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" /> Income
@@ -234,7 +234,7 @@ export const QuickAddModal: React.FC<{
             className={`py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition ${
               activeTab === 'transfer'
                 ? 'bg-sky-600 text-white shadow-sm font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700'
+                : 'text-slate-600  hover:bg-white/50 '
             }`}
           >
             <ArrowRightLeft className="w-3.5 h-3.5" /> Transfer
@@ -245,7 +245,7 @@ export const QuickAddModal: React.FC<{
             className={`py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition ${
               activeTab === 'loan'
                 ? 'bg-amber-600 text-white shadow-sm font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700'
+                : 'text-slate-600  hover:bg-white/50 '
             }`}
           >
             <Handshake className="w-3.5 h-3.5" /> Loan / ধার
@@ -257,7 +257,7 @@ export const QuickAddModal: React.FC<{
           {/* Amount & Currency */}
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Amount *
               </label>
               <div className="relative">
@@ -268,7 +268,7 @@ export const QuickAddModal: React.FC<{
                   placeholder="0.00"
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
-                  className="w-full text-xl font-bold px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none font-mono"
+                  className="w-full text-xl font-bold px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none font-mono"
                 />
               </div>
               {/* Quick Amount Chips */}
@@ -278,7 +278,7 @@ export const QuickAddModal: React.FC<{
                     key={val}
                     type="button"
                     onClick={() => setAmount(val.toString())}
-                    className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-emerald-600 hover:text-white transition"
+                    className="px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-slate-100 text-slate-700 hover:bg-emerald-600 hover:text-white transition"
                   >
                     ৳{val}
                   </button>
@@ -287,13 +287,13 @@ export const QuickAddModal: React.FC<{
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Currency
               </label>
               <select
                 value={currency}
                 onChange={e => setCurrency(e.target.value as CurrencyCode)}
-                className="w-full text-sm font-bold px-3 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-sm font-bold px-3 py-3 rounded-xl border border-slate-300 bg-white text-slate-900"
               >
                 {currencies.map(c => (
                   <option key={c} value={c}>{c}</option>
@@ -303,7 +303,7 @@ export const QuickAddModal: React.FC<{
           </div>
 
           {currency !== profile.baseCurrency && (
-            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 -mt-2">
+            <p className="text-[11px] text-emerald-600 -mt-2">
               Auto converts to ≈ {formatCurrency((parseFloat(amount) || 0) * (exchangeRates[currency] || 1), profile.baseCurrency)} ({exchangeRates[currency]} {profile.baseCurrency}/{currency})
             </p>
           )}
@@ -313,7 +313,7 @@ export const QuickAddModal: React.FC<{
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Category *
                   </label>
                   <select
@@ -322,7 +322,7 @@ export const QuickAddModal: React.FC<{
                       setCategoryId(e.target.value);
                       setSubCategoryId('');
                     }}
-                    className="w-full text-xs font-medium px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs font-medium px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                   >
                     {categories.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -331,14 +331,14 @@ export const QuickAddModal: React.FC<{
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Sub-Category
                   </label>
                   <select
                     value={subCategoryId}
                     onChange={e => setSubCategoryId(e.target.value)}
                     disabled={!selectedCat?.subCategories?.length}
-                    className="w-full text-xs font-medium px-3 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white disabled:opacity-50"
+                    className="w-full text-xs font-medium px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 disabled:opacity-50"
                   >
                     <option value="">None / General</option>
                     {selectedCat?.subCategories?.map(sub => (
@@ -350,13 +350,13 @@ export const QuickAddModal: React.FC<{
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Paid From Account
                   </label>
                   <select
                     value={accountId}
                     onChange={e => setAccountId(e.target.value)}
-                    className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   >
                     {accounts.map(acc => (
                       <option key={acc.id} value={acc.id}>
@@ -367,13 +367,13 @@ export const QuickAddModal: React.FC<{
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Payment Method
                   </label>
                   <select
                     value={paymentMethod}
                     onChange={e => setPaymentMethod(e.target.value as PaymentMethod)}
-                    className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   >
                     <option value="Cash">Cash</option>
                     <option value="Bank">Bank Transfer</option>
@@ -387,9 +387,9 @@ export const QuickAddModal: React.FC<{
               </div>
 
               {/* Shared Expense / Split Toggle */}
-              <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/60 space-y-2">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer">
+                  <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isShared}
@@ -401,20 +401,20 @@ export const QuickAddModal: React.FC<{
                 </div>
 
                 {isShared && (
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
                     <input
                       type="text"
                       placeholder="Shared with (e.g. Fahim, Tanvir)"
                       value={sharedWith}
                       onChange={e => setSharedWith(e.target.value)}
-                      className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                      className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                     />
                     <input
                       type="number"
                       placeholder="My portion amount"
                       value={myShareAmount}
                       onChange={e => setMyShareAmount(e.target.value)}
-                      className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                      className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                     />
                   </div>
                 )}
@@ -422,11 +422,11 @@ export const QuickAddModal: React.FC<{
 
               {/* Receipt Attachment */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Attach Receipt Image (Optional)
                 </label>
                 <div className="flex items-center gap-2">
-                  <label className="flex-1 border border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-lg p-2.5 flex items-center justify-center gap-2 text-xs text-slate-500 cursor-pointer bg-slate-50/50 dark:bg-slate-800/40">
+                  <label className="flex-1 border border-dashed border-slate-300 hover:border-emerald-500 rounded-lg p-2.5 flex items-center justify-center gap-2 text-xs text-slate-500 cursor-pointer bg-slate-50/50">
                     <Upload className="w-4 h-4 text-emerald-500" />
                     <span>{receiptName ? receiptName : 'Upload receipt file'}</span>
                     <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -456,8 +456,8 @@ export const QuickAddModal: React.FC<{
                     onClick={() => setIncomeType(t)}
                     className={`py-2 text-xs font-bold capitalize rounded-lg border transition ${
                       incomeType === t
-                        ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-700 dark:text-emerald-400'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        ? 'bg-emerald-50  border-emerald-500 text-emerald-700 '
+                        : 'border-slate-200  text-slate-600 '
                     }`}
                   >
                     {t}
@@ -468,34 +468,34 @@ export const QuickAddModal: React.FC<{
               {incomeType === 'freelance' && (
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Client</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Client</label>
                     <input
                       type="text"
                       list="clients-list"
                       placeholder="e.g. Nexus Cloud Labs"
                       value={clientName}
                       onChange={e => setClientName(e.target.value)}
-                      className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                      className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                     />
                     <datalist id="clients-list">
                       {clients.map(c => <option key={c.id} value={c.name} />)}
                     </datalist>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Project Name</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Project Name</label>
                     <input
                       type="text"
                       placeholder="e.g. React Migration"
                       value={projectName}
                       onChange={e => setProjectName(e.target.value)}
-                      className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                      className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                     />
                   </div>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Source / Description *
                 </label>
                 <input
@@ -504,17 +504,17 @@ export const QuickAddModal: React.FC<{
                   placeholder={incomeType === 'salary' ? 'e.g. Apex Digital Monthly Salary' : 'e.g. Freelance Sprint Payment / Bonus'}
                   value={source}
                   onChange={e => setSource(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Deposit To</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Deposit To</label>
                   <select
                     value={accountId}
                     onChange={e => setAccountId(e.target.value)}
-                    className="w-full text-xs font-medium px-2.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs font-medium px-2.5 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   >
                     {accounts.map(acc => (
                       <option key={acc.id} value={acc.id}>{acc.name}</option>
@@ -522,11 +522,11 @@ export const QuickAddModal: React.FC<{
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Platform</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Platform</label>
                   <select
                     value={paymentPlatform}
                     onChange={e => setPaymentPlatform(e.target.value as PaymentPlatform)}
-                    className="w-full text-xs font-medium px-2.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs font-medium px-2.5 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   >
                     <option value="Bank Transfer">Bank Transfer</option>
                     <option value="Wise">Wise</option>
@@ -540,11 +540,11 @@ export const QuickAddModal: React.FC<{
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Status</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Status</label>
                   <select
                     value={incomeStatus}
                     onChange={e => setIncomeStatus(e.target.value as any)}
-                    className="w-full text-xs font-medium px-2.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs font-medium px-2.5 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   >
                     <option value="received">Received</option>
                     <option value="pending">Pending</option>
@@ -553,25 +553,25 @@ export const QuickAddModal: React.FC<{
               </div>
 
               {incomeType === 'salary' && (
-                <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Tax Deduction (Optional)</label>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Tax Deduction (Optional)</label>
                     <input
                       type="number"
                       placeholder="e.g. 12000"
                       value={taxDeduction}
                       onChange={e => setTaxDeduction(e.target.value)}
-                      className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                      className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Provident Fund (Optional)</label>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Provident Fund (Optional)</label>
                     <input
                       type="number"
                       placeholder="e.g. 8000"
                       value={pfDeduction}
                       onChange={e => setPfDeduction(e.target.value)}
-                      className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                      className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                     />
                   </div>
                 </div>
@@ -581,13 +581,13 @@ export const QuickAddModal: React.FC<{
 
           {/* TRANSFER SPECIFIC FIELDS */}
           {activeTab === 'transfer' && (
-            <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">From Account (Source)</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">From Account (Source)</label>
                 <select
                   value={fromAccountId}
                   onChange={e => setFromAccountId(e.target.value)}
-                  className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                  className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 >
                   {accounts.map(acc => (
                     <option key={acc.id} value={acc.id}>
@@ -598,11 +598,11 @@ export const QuickAddModal: React.FC<{
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">To Account (Destination)</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">To Account (Destination)</label>
                 <select
                   value={toAccountId}
                   onChange={e => setToAccountId(e.target.value)}
-                  className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                  className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 >
                   {accounts.map(acc => (
                     <option key={acc.id} value={acc.id}>
@@ -623,8 +623,8 @@ export const QuickAddModal: React.FC<{
                   onClick={() => setLoanType('lent')}
                   className={`py-2 text-xs font-bold rounded-lg border transition ${
                     loanType === 'lent'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-700 dark:text-emerald-400'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                      ? 'bg-emerald-50  border-emerald-500 text-emerald-700 '
+                      : 'border-slate-200  text-slate-600 '
                   }`}
                 >
                   Money Lent (I gave / Receivable)
@@ -634,8 +634,8 @@ export const QuickAddModal: React.FC<{
                   onClick={() => setLoanType('borrowed')}
                   className={`py-2 text-xs font-bold rounded-lg border transition ${
                     loanType === 'borrowed'
-                      ? 'bg-rose-50 dark:bg-rose-950/60 border-rose-500 text-rose-700 dark:text-rose-400'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                      ? 'bg-rose-50  border-rose-500 text-rose-700 '
+                      : 'border-slate-200  text-slate-600 '
                   }`}
                 >
                   Money Borrowed (I took / Payable)
@@ -644,35 +644,35 @@ export const QuickAddModal: React.FC<{
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Person Name *</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Person Name *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Tariqul Islam"
                     value={loanPerson}
                     onChange={e => setLoanPerson(e.target.value)}
-                    className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Contact Phone (Optional)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Contact Phone (Optional)</label>
                   <input
                     type="text"
                     placeholder="+88017..."
                     value={loanContact}
                     onChange={e => setLoanContact(e.target.value)}
-                    className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Linked Account</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Linked Account</label>
                   <select
                     value={accountId}
                     onChange={e => setAccountId(e.target.value)}
-                    className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   >
                     {accounts.map(acc => (
                       <option key={acc.id} value={acc.id}>{acc.name}</option>
@@ -680,12 +680,12 @@ export const QuickAddModal: React.FC<{
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Due Date (Optional)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Due Date (Optional)</label>
                   <input
                     type="date"
                     value={loanDueDate}
                     onChange={e => setLoanDueDate(e.target.value)}
-                    className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   />
                 </div>
               </div>
@@ -695,7 +695,7 @@ export const QuickAddModal: React.FC<{
           {/* Date, Notes & Tags (Common to all) */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Transaction Date *
               </label>
               <input
@@ -703,12 +703,12 @@ export const QuickAddModal: React.FC<{
                 required
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Tags (comma separated)
               </label>
               <input
@@ -716,13 +716,13 @@ export const QuickAddModal: React.FC<{
                 placeholder="e.g. food, client, urgent"
                 value={tagsInput}
                 onChange={e => setTagsInput(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Notes & Description
             </label>
             <textarea
@@ -730,16 +730,16 @@ export const QuickAddModal: React.FC<{
               placeholder="Add optional notes..."
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none"
+              className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 resize-none"
             />
           </div>
 
           {/* Footer Submit */}
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
+          <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="px-4 py-2 text-xs font-medium rounded-lg text-slate-600 hover:bg-slate-100"
             >
               Cancel
             </button>

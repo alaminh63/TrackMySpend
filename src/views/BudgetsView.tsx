@@ -120,12 +120,12 @@ export const BudgetsView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
             <PieChart className="w-5 h-5 text-emerald-600" /> Category Budgets & Spending Caps
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Configure monthly ceiling limits per category with 80% warning badges and rollover balances
           </p>
         </div>
@@ -133,7 +133,7 @@ export const BudgetsView: React.FC<{
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowCategoryModal(true)}
-            className="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1.5"
           >
             <FolderPlus className="w-3.5 h-3.5 text-emerald-500" /> New Category
           </button>
@@ -152,21 +152,21 @@ export const BudgetsView: React.FC<{
 
       {/* Monthly Budget Summary Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="p-4 rounded-xl bg-white border border-slate-200">
           <p className="text-[11px] font-bold uppercase text-slate-400">Total Monthly Budget</p>
-          <p className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">{formatCurrency(totalBudgetLimit)}</p>
+          <p className="text-xl font-extrabold text-slate-900 mt-1">{formatCurrency(totalBudgetLimit)}</p>
           <p className="text-[10px] text-slate-400 mt-0.5">Sum of all planned category limits</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="p-4 rounded-xl bg-white border border-slate-200">
           <p className="text-[11px] font-bold uppercase text-slate-400">Total Spent So Far</p>
-          <p className="text-xl font-extrabold text-rose-600 dark:text-rose-400 mt-1">{formatCurrency(totalMonthSpent)}</p>
+          <p className="text-xl font-extrabold text-rose-600 mt-1">{formatCurrency(totalMonthSpent)}</p>
           <p className="text-[10px] text-slate-400 mt-0.5">
             {totalBudgetLimit > 0 ? `${((totalMonthSpent / totalBudgetLimit) * 100).toFixed(1)}% of total budget used` : '0%'}
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="p-4 rounded-xl bg-white border border-slate-200">
           <p className="text-[11px] font-bold uppercase text-slate-400">Remaining Budget Buffer</p>
           <p className={`text-xl font-extrabold mt-1 ${totalBudgetLimit - totalMonthSpent >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
             {formatCurrency(Math.max(0, totalBudgetLimit - totalMonthSpent))}
@@ -183,14 +183,14 @@ export const BudgetsView: React.FC<{
             .filter(e => e.categoryId === budget.categoryId)
             .reduce((s, e) => s + e.convertedAmount, 0);
 
-          const percent = (spent / budget.monthlyLimit) * 100;
+          const percent = budget.monthlyLimit > 0 ? (spent / budget.monthlyLimit) * 100 : 0;
           const isOver = percent >= 100;
           const isWarning = percent >= budget.alertThresholdPercent && !isOver;
 
           return (
             <div
               key={budget.id}
-              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between"
+              className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-3">
@@ -202,7 +202,7 @@ export const BudgetsView: React.FC<{
                       {budget.categoryName.charAt(0)}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">{budget.categoryName}</h4>
+                      <h4 className="text-sm font-bold text-slate-900">{budget.categoryName}</h4>
                       <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
                         {budget.rollover && <span className="text-emerald-600 font-semibold">• Rollover enabled</span>}
                         <span>• Alert @ {budget.alertThresholdPercent}%</span>
@@ -240,15 +240,15 @@ export const BudgetsView: React.FC<{
                 {/* Progress Bar */}
                 <div className="space-y-1.5 my-3">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-slate-600 dark:text-slate-300">
-                      Spent: <strong className="text-slate-900 dark:text-white">{formatCurrency(spent)}</strong>
+                    <span className="font-semibold text-slate-600">
+                      Spent: <strong className="text-slate-900">{formatCurrency(spent)}</strong>
                     </span>
                     <span className="font-semibold text-slate-500">
                       Limit: {formatCurrency(budget.monthlyLimit)}
                     </span>
                   </div>
 
-                  <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/50 dark:border-slate-700/50">
+                  <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/50">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
                         isOver ? 'bg-rose-500' : isWarning ? 'bg-amber-500' : 'bg-emerald-500'
@@ -259,14 +259,14 @@ export const BudgetsView: React.FC<{
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
                 <span
                   className={`px-2 py-0.5 rounded-md font-bold text-[10px] ${
                     isOver
-                      ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
+                      ? 'bg-rose-100 text-rose-700  '
                       : isWarning
-                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
-                      : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                      ? 'bg-amber-100 text-amber-700  '
+                      : 'bg-emerald-100 text-emerald-700  '
                   }`}
                 >
                   {isOver ? `Over Budget (+${formatCurrency(spent - budget.monthlyLimit)})` : `${(100 - percent).toFixed(0)}% Left (${formatCurrency(budget.monthlyLimit - spent)})`}
@@ -285,18 +285,18 @@ export const BudgetsView: React.FC<{
       </div>
 
       {/* Category Manager with Subcategories */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
           <Layers className="w-4 h-4 text-emerald-500" /> Categories & Sub-Categories Hierarchy
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {categories.map(cat => (
-            <div key={cat.id} className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
+            <div key={cat.id} className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
-                  <span className="font-bold text-xs text-slate-900 dark:text-white">{cat.name}</span>
+                  <span className="font-bold text-xs text-slate-900">{cat.name}</span>
                 </div>
                 {!cat.isDefault && (
                   <button
@@ -309,12 +309,12 @@ export const BudgetsView: React.FC<{
               </div>
 
               {/* Sub-categories */}
-              <div className="space-y-1 pl-4 border-l-2 border-slate-200 dark:border-slate-700 text-[11px] text-slate-500">
+              <div className="space-y-1 pl-4 border-l-2 border-slate-200 text-[11px] text-slate-500">
                 {cat.subCategories.length === 0 ? (
                   <span className="text-[10px] text-slate-400 italic">No sub-categories</span>
                 ) : (
                   cat.subCategories.map(sub => (
-                    <p key={sub.id} className="text-slate-600 dark:text-slate-400">• {sub.name}</p>
+                    <p key={sub.id} className="text-slate-600">• {sub.name}</p>
                   ))
                 )}
 
@@ -325,7 +325,7 @@ export const BudgetsView: React.FC<{
                       placeholder="Subcategory name"
                       value={newSubCatName}
                       onChange={e => setNewSubCatName(e.target.value)}
-                      className="text-xs px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                      className="text-xs px-2 py-0.5 rounded border border-slate-300 bg-white"
                     />
                     <button
                       onClick={() => handleAddSubCategory(cat.id)}
@@ -356,19 +356,19 @@ export const BudgetsView: React.FC<{
 
       {/* Budget Set Modal */}
       {showBudgetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4">
-          <form onSubmit={handleSaveBudget} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+          <form onSubmit={handleSaveBudget} className="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
+            <h3 className="text-base font-bold text-slate-900">
               {editingBudget ? 'Edit Category Budget' : 'Set Category Budget Limit'}
             </h3>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Select Category</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Select Category</label>
               <select
                 disabled={!!editingBudget}
                 value={budgetCatId}
                 onChange={e => setBudgetCatId(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               >
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -377,7 +377,7 @@ export const BudgetsView: React.FC<{
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Monthly Limit Amount ({profile.baseCurrency}) *
               </label>
               <input
@@ -386,13 +386,13 @@ export const BudgetsView: React.FC<{
                 placeholder="25000"
                 value={budgetLimit}
                 onChange={e => setBudgetLimit(e.target.value)}
-                className="w-full text-lg font-bold px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-lg font-bold px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Alert Trigger Threshold (%)
                 </label>
                 <input
@@ -401,12 +401,12 @@ export const BudgetsView: React.FC<{
                   max="100"
                   value={budgetAlertThreshold}
                   onChange={e => setBudgetAlertThreshold(parseInt(e.target.value) || 80)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 />
               </div>
 
               <div className="flex items-center pt-5">
-                <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={budgetRollover}
@@ -418,11 +418,11 @@ export const BudgetsView: React.FC<{
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
               <button
                 type="button"
                 onClick={() => setShowBudgetModal(false)}
-                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400"
+                className="px-4 py-2 text-xs font-medium text-slate-600"
               >
                 Cancel
               </button>
@@ -439,37 +439,37 @@ export const BudgetsView: React.FC<{
 
       {/* Category Creation Modal */}
       {showCategoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4">
-          <form onSubmit={handleAddCategory} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Create Custom Category</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+          <form onSubmit={handleAddCategory} className="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl p-6 space-y-4">
+            <h3 className="text-base font-bold text-slate-900">Create Custom Category</h3>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Category Name *</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Category Name *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Pet Care / Vehicle Maintenance"
                 value={newCatName}
                 onChange={e => setNewCatName(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Color Marker</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Color Marker</label>
               <input
                 type="color"
                 value={newCatColor}
                 onChange={e => setNewCatColor(e.target.value)}
-                className="w-full h-10 rounded-lg cursor-pointer border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-1"
+                className="w-full h-10 rounded-lg cursor-pointer border border-slate-300 bg-white p-1"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
               <button
                 type="button"
                 onClick={() => setShowCategoryModal(false)}
-                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400"
+                className="px-4 py-2 text-xs font-medium text-slate-600"
               >
                 Cancel
               </button>

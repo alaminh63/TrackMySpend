@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Flame,
   Calendar,
@@ -162,93 +163,168 @@ export const DailyExpenseView: React.FC<{
 
   return (
     <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-            <Flame className="w-5 h-5 text-amber-500" />
-            <span>দৈনিক খরচ ও ইনস্ট্যান্ট ট্র্যাকার</span>
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            প্রতিটি ১০ টাকা, ২০ টাকা, চা-নাস্তা বা রিকশা ভাড়ার সুনির্দিষ্ট নোট ও ইনস্ট্যান্ট এন্ট্রি
-          </p>
+      {/* Top Header Card */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs">
+        <div className="flex items-start gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200/70 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
+            <Flame className="w-6 h-6 text-amber-500" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                দৈনিক খরচ ও ইনস্ট্যান্ট ট্র্যাকার
+              </h1>
+              <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <Zap className="w-3 h-3 text-emerald-600" /> Live Ledger
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              চা-নাস্তা, রিকশা ভাড়া, কাঁচাবাজার কিংবা ছোট-বড় সকল দৈনন্দিন খরচের তাৎক্ষণিক নোট ও স্বচ্ছ হিসাব
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => onOpenQuickAdd('expense')}
-            className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors active:scale-95"
           >
-            <Receipt className="w-3.5 h-3.5 text-emerald-600" /> অ্যাডভান্সড এন্ট্রি
+            <Receipt className="w-3.5 h-3.5 text-emerald-600" /> অ্যাডভান্সড খরচ
+          </button>
+          <button
+            onClick={() => onOpenQuickAdd('income')}
+            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors active:scale-95 shadow-xs shadow-emerald-600/20"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" /> আয় যোগ
           </button>
         </div>
       </div>
 
-      {/* 1. Dedicated Fast Logger Component */}
+      {/* 1. Fast Micro-Expense Logger */}
       <DailyExpenseLogger />
 
-      {/* 2. Today & Daily Overview Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-emerald-500/10 border border-emerald-500/30 dark:bg-emerald-950/40 p-4 rounded-2xl">
-          <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-            আজকের মোট খরচ (Today)
-          </p>
-          <h3 className="text-2xl font-black text-emerald-800 dark:text-emerald-200 mt-1 font-mono">
+      {/* 2. Key Daily Overview Metric Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Today's Total */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          whileHover={{ y: -2 }}
+          className="bg-white border border-emerald-200/80 p-4 sm:p-5 rounded-2xl shadow-xs relative overflow-hidden transition-all hover:border-emerald-300"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+              আজকের মোট খরচ (Today)
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Flame className="w-4 h-4" />
+            </div>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-emerald-700 mt-2 font-mono tracking-tight">
             {formatCurrency(todayTotal)}
           </h3>
-          <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1">
-            মোট <strong>{todayExpenses.length}</strong> টি এন্ট্রি আজ
-          </p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-emerald-600/90 mt-2 pt-2 border-t border-emerald-100/80">
+            <span>আজকের এন্ট্রি:</span>
+            <span className="font-bold font-mono bg-emerald-100/70 px-1.5 py-0.5 rounded text-[10px]">
+              {todayExpenses.length} টি
+            </span>
+          </div>
+        </motion.div>
 
-        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl">
-          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
-            গতকালকের খরচ (Yesterday)
-          </p>
-          <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1 font-mono">
+        {/* Yesterday's Total */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.05 }}
+          whileHover={{ y: -2 }}
+          className="bg-white border border-slate-200/90 p-4 sm:p-5 rounded-2xl shadow-xs transition-all hover:border-slate-300"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              গতকালকের খরচ (Yesterday)
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center">
+              <Calendar className="w-4 h-4" />
+            </div>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-2 font-mono tracking-tight">
             {formatCurrency(yesterdayTotal)}
           </h3>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-            {yesterdayExpenses.length} টি এন্ট্রি
-          </p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 pt-2 border-t border-slate-100">
+            <span>গতকালের এন্ট্রি:</span>
+            <span className="font-bold font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[10px] text-slate-700">
+              {yesterdayExpenses.length} টি
+            </span>
+          </div>
+        </motion.div>
 
-        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl">
-          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
-            এই মাসের মোট খরচ (This Month)
-          </p>
-          <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1 font-mono">
+        {/* This Month Total */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.1 }}
+          whileHover={{ y: -2 }}
+          className="bg-white border border-slate-200/90 p-4 sm:p-5 rounded-2xl shadow-xs transition-all hover:border-slate-300"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              চলতি মাসের খরচ (This Month)
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center">
+              <TrendingDown className="w-4 h-4 text-rose-500" />
+            </div>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-2 font-mono tracking-tight">
             {formatCurrency(thisMonthTotal)}
           </h3>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-            {thisMonthExpenses.length} টি লেনদেন
-          </p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 pt-2 border-t border-slate-100">
+            <span>মাসিক লেনদেন:</span>
+            <span className="font-bold font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[10px] text-slate-700">
+              {thisMonthExpenses.length} টি
+            </span>
+          </div>
+        </motion.div>
 
-        <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl">
-          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
-            দৈনিক গড় খরচ (Daily Average)
-          </p>
-          <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1 font-mono">
+        {/* Daily Average */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.15 }}
+          whileHover={{ y: -2 }}
+          className="bg-white border border-slate-200/90 p-4 sm:p-5 rounded-2xl shadow-xs transition-all hover:border-slate-300"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              দৈনিক গড় খরচ (Daily Avg)
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center">
+              <Clock className="w-4 h-4 text-amber-500" />
+            </div>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-2 font-mono tracking-tight">
             {formatCurrency(thisMonthExpenses.length > 0 ? thisMonthTotal / Math.max(1, new Date().getDate()) : 0)}
           </h3>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-            প্রতি দিনে আনুমানিক
-          </p>
-        </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 pt-2 border-t border-slate-100">
+            <span>প্রতিদিন আনুমানিক:</span>
+            <span className="font-medium text-[10px] text-slate-600">
+              চলতি মাসের গতি
+            </span>
+          </div>
+        </motion.div>
       </div>
 
       {/* 3. Daily Ledger & Expenses Filter Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 space-y-4 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Date Filter Tabs */}
-          <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-slate-800/70 p-1 rounded-xl">
+          <div className="flex flex-wrap items-center gap-1.5 bg-slate-100/90 p-1 rounded-xl">
             <button
               onClick={() => setDateFilter('today')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 dateFilter === 'today'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               আজকের খরচ ({todayExpenses.length})
@@ -257,18 +333,18 @@ export const DailyExpenseView: React.FC<{
               onClick={() => setDateFilter('yesterday')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 dateFilter === 'yesterday'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              গতকাল
+              গতকাল ({yesterdayExpenses.length})
             </button>
             <button
               onClick={() => setDateFilter('7days')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 dateFilter === '7days'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               গত ৭ দিন
@@ -277,8 +353,8 @@ export const DailyExpenseView: React.FC<{
               onClick={() => setDateFilter('this_month')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 dateFilter === 'this_month'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               এই মাস
@@ -287,8 +363,8 @@ export const DailyExpenseView: React.FC<{
               onClick={() => setDateFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 dateFilter === 'all'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               সব সময়
@@ -303,51 +379,66 @@ export const DailyExpenseView: React.FC<{
               placeholder="নোট বা খরচ খুঁজুন (যেমন: চা, রিকশা)..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-emerald-500"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-emerald-500 focus:bg-white transition"
             />
           </div>
         </div>
 
         {/* Categories & Wallet filter pills */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/80">
-          <span className="text-[11px] font-bold text-slate-400">ক্যাটাগরি:</span>
-          <select
-            value={selectedCategoryFilter}
-            onChange={e => setSelectedCategoryFilter(e.target.value)}
-            className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-          >
-            <option value="all">সব ক্যাটাগরি</option>
-            {categories.map(c => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-400">ক্যাটাগরি:</span>
+            <select
+              value={selectedCategoryFilter}
+              onChange={e => setSelectedCategoryFilter(e.target.value)}
+              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+            >
+              <option value="all">সব ক্যাটাগরি</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
 
-          <span className="text-[11px] font-bold text-slate-400 ml-2">ওয়ালেট:</span>
-          <select
-            value={selectedWalletFilter}
-            onChange={e => setSelectedWalletFilter(e.target.value)}
-            className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-          >
-            <option value="all">সব ওয়ালেট/অ্যাকাউন্ট</option>
-            {accounts.map(a => (
-              <option key={a.id} value={a.id}>
-                {a.name} ({a.type})
-              </option>
-            ))}
-          </select>
+            <span className="text-[11px] font-bold text-slate-400 ml-2">ওয়ালেট:</span>
+            <select
+              value={selectedWalletFilter}
+              onChange={e => setSelectedWalletFilter(e.target.value)}
+              className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+            >
+              <option value="all">সব ওয়ালেট/অ্যাকাউন্ট</option>
+              {accounts.map(a => (
+                <option key={a.id} value={a.id}>
+                  {a.name} ({a.type})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {(searchQuery || selectedCategoryFilter !== 'all' || selectedWalletFilter !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategoryFilter('all');
+                setSelectedWalletFilter('all');
+              }}
+              className="text-xs text-slate-500 hover:text-slate-800 font-bold underline flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" /> ফিল্টার রিসেট
+            </button>
+          )}
         </div>
 
         {/* List of Entries grouped by Day */}
-        <div className="space-y-6 pt-2">
+        <div className="space-y-5 pt-2">
           {Object.keys(groupedByDate).length === 0 ? (
-            <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-              <Coffee className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">
+            <div className="text-center py-12 bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
+              <Coffee className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+              <h4 className="text-sm font-bold text-slate-700">
                 এই ফিল্টারে কোনো খরচ পাওয়া যায়নি
               </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                 উপরে ইনস্ট্যান্ট লগারের মাধ্যমে ১০ টাকা বা যেকোনো খরচের এন্ট্রি দিন।
               </p>
             </div>
@@ -359,31 +450,31 @@ export const DailyExpenseView: React.FC<{
                 const daySubtotal = dayItems.reduce((s, item) => s + item.convertedAmount, 0);
 
                 return (
-                  <div key={dateKey} className="space-y-2.5">
+                  <div key={dateKey} className="space-y-2">
                     {/* Day Group Header */}
-                    <div className="flex items-center justify-between px-3 py-2 bg-slate-100/80 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+                    <div className="flex items-center justify-between px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200/80">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-emerald-600" />
-                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        <span className="text-xs font-bold text-slate-800">
                           {formatFriendlyDate(dateKey)}
                         </span>
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                        <span className="text-[11px] text-slate-400 font-mono">
                           ({dateKey})
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xs text-slate-500 font-medium hidden sm:inline">
                           {dayItems.length} টি খরচ
                         </span>
-                        <span className="text-xs font-black font-mono text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-800/60">
+                        <span className="text-xs font-black font-mono text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200/80">
                           -{formatCurrency(daySubtotal)}
                         </span>
                       </div>
                     </div>
 
                     {/* Day Items */}
-                    <div className="divide-y divide-slate-100 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
+                    <div className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
                       {dayItems.map(item => {
                         const acc = accounts.find(a => a.id === item.accountId);
                         const isBeingEdited = editingExpense?.id === item.id;
@@ -391,11 +482,11 @@ export const DailyExpenseView: React.FC<{
                         return (
                           <div
                             key={item.id}
-                            className="p-3 sm:p-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                            className="p-3 sm:p-3.5 hover:bg-slate-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
                           >
                             <div className="flex items-start gap-3 min-w-0">
                               {/* Category / Icon Avatar */}
-                              <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+                              <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200/70 text-rose-600 flex items-center justify-center shrink-0 mt-0.5">
                                 <TrendingDown className="w-4 h-4" />
                               </div>
 
@@ -406,7 +497,7 @@ export const DailyExpenseView: React.FC<{
                                       type="text"
                                       value={editNotes}
                                       onChange={e => setEditNotes(e.target.value)}
-                                      className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                                      className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-900"
                                       placeholder="খরচের বিবরণ..."
                                     />
                                     <div className="flex items-center gap-2">
@@ -414,7 +505,7 @@ export const DailyExpenseView: React.FC<{
                                         type="number"
                                         value={editAmount}
                                         onChange={e => setEditAmount(e.target.value)}
-                                        className="w-24 text-xs font-mono font-bold px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                        className="w-24 text-xs font-mono font-bold px-2 py-1 rounded-lg border border-slate-300 bg-white"
                                       />
                                       <button
                                         onClick={handleSaveEdit}
@@ -433,30 +524,30 @@ export const DailyExpenseView: React.FC<{
                                 ) : (
                                   <>
                                     <div className="flex items-center gap-2 flex-wrap">
-                                      <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
+                                      <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
                                         {item.notes || item.categoryName}
                                       </h4>
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-semibold">
                                         {item.categoryName}
                                       </span>
                                       {item.tags?.map(t => (
                                         <span
                                           key={t}
-                                          className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-medium"
+                                          className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-medium border border-emerald-100"
                                         >
                                           #{t}
                                         </span>
                                       ))}
                                     </div>
 
-                                    <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                                      <span className="flex items-center gap-1">
+                                    <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
+                                      <span className="flex items-center gap-1 font-medium text-slate-600">
                                         <Wallet className="w-3 h-3 text-slate-400" />
                                         <span>{acc?.name || item.paymentMethod}</span>
                                       </span>
                                       {item.createdAt && (
-                                        <span className="flex items-center gap-1 font-mono text-[10px]">
-                                          <Clock className="w-3 h-3 text-slate-400" />
+                                        <span className="flex items-center gap-1 font-mono text-[10px] text-slate-400">
+                                          <Clock className="w-3 h-3" />
                                           {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                       )}
@@ -467,8 +558,8 @@ export const DailyExpenseView: React.FC<{
                             </div>
 
                             {/* Right Amount & Actions */}
-                            <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800/80">
-                              <span className="text-base sm:text-lg font-black font-mono text-rose-600 dark:text-rose-400">
+                            <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                              <span className="text-base sm:text-lg font-black font-mono text-rose-600">
                                 -{formatCurrency(item.amount, item.currency)}
                               </span>
 
@@ -477,21 +568,21 @@ export const DailyExpenseView: React.FC<{
                                 <button
                                   onClick={() => duplicateExpense(item.id)}
                                   title="আরেকবার যোগ করুন (Repeat Expense)"
-                                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 text-slate-600 dark:text-slate-400 hover:text-emerald-600 transition-colors"
+                                  className="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 transition-colors"
                                 >
                                   <Copy className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => handleStartEdit(item)}
                                   title="Edit Note / Amount"
-                                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-colors"
+                                  className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => deleteExpense(item.id)}
                                   title="Delete"
-                                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-600 dark:text-slate-400 hover:text-rose-600 transition-colors"
+                                  className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition-colors"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>

@@ -1,19 +1,25 @@
 import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
 import {
   TrendingUp,
   TrendingDown,
   PiggyBank,
   Wallet,
   Calendar,
-  AlertTriangle,
   ArrowUpRight,
   ArrowDownRight,
-  Sparkles,
-  CreditCard,
   Briefcase,
   Layers,
   ChevronRight,
   Plus,
+  ArrowRightLeft,
+  DollarSign,
+  AlertCircle,
+  Clock,
+  Landmark,
+  Smartphone,
+  CreditCard,
+  Percent,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -26,8 +32,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   CartesianGrid,
   AreaChart,
   Area,
@@ -35,9 +39,15 @@ import {
 import { useFinance } from '../context/FinanceContext';
 import { DailyExpenseLogger } from '../components/DailyExpenseLogger';
 
-const PIE_COLORS = [
-  '#10b981', '#6366f1', '#f59e0b', '#ec4899', '#06b6d4',
-  '#8b5cf6', '#ef4444', '#14b8a6', '#f97316', '#3b82f6',
+const CATEGORY_COLORS = [
+  '#059669', // emerald-600
+  '#2563eb', // blue-600
+  '#d97706', // amber-600
+  '#7c3aed', // violet-600
+  '#e11d48', // rose-600
+  '#0891b2', // cyan-600
+  '#ea580c', // orange-600
+  '#4f46e5', // indigo-600
 ];
 
 export const DashboardView: React.FC<{
@@ -47,6 +57,7 @@ export const DashboardView: React.FC<{
   const {
     incomes,
     expenses,
+    accounts,
     budgets,
     categories,
     netWorth,
@@ -58,7 +69,7 @@ export const DashboardView: React.FC<{
     profile,
   } = useFinance();
 
-  // Selected Month/Year Filter (defaults to August 2026)
+  // Selected Month/Year Filter (defaults to 2026-08)
   const [selectedPeriod, setSelectedPeriod] = useState<string>('2026-08');
 
   // Filtered dataset for selected month
@@ -71,7 +82,7 @@ export const DashboardView: React.FC<{
   const netSavings = totalIncome - totalExpense;
   const savingsRate = totalIncome > 0 ? (netSavings / totalIncome) * 100 : 0;
 
-  // Previous month comparison (July 2026)
+  // Previous month comparison
   const prevPeriod = useMemo(() => {
     const [y, m] = selectedPeriod.split('-').map(Number);
     const prevDate = new Date(y, m - 2, 1);
@@ -85,15 +96,15 @@ export const DashboardView: React.FC<{
   const prevTotalIncome = useMemo(() => prevMonthIncomes.reduce((s, i) => s + i.convertedAmount, 0), [prevMonthIncomes]);
   const prevTotalExpense = useMemo(() => prevMonthExpenses.reduce((s, e) => s + e.convertedAmount, 0), [prevMonthExpenses]);
 
-  // Income Sources Breakdown (Salary vs Freelance vs Other)
+  // Income Sources Breakdown
   const incomeSourcesData = useMemo(() => {
     const salary = monthIncomes.filter(i => i.type === 'salary').reduce((s, i) => s + i.convertedAmount, 0);
     const freelance = monthIncomes.filter(i => i.type === 'freelance').reduce((s, i) => s + i.convertedAmount, 0);
     const other = monthIncomes.filter(i => i.type === 'other').reduce((s, i) => s + i.convertedAmount, 0);
     return [
-      { name: 'Job Salary', value: salary, color: '#10b981' },
-      { name: 'Freelance & Projects', value: freelance, color: '#6366f1' },
-      { name: 'Other Income', value: other, color: '#f59e0b' },
+      { name: 'Salary & Employment', value: salary, color: '#059669' },
+      { name: 'Freelance & Contracts', value: freelance, color: '#2563eb' },
+      { name: 'Other Inflows', value: other, color: '#d97706' },
     ].filter(d => d.value > 0);
   }, [monthIncomes]);
 
@@ -107,7 +118,7 @@ export const DashboardView: React.FC<{
       .map(([name, value], idx) => ({
         name,
         value,
-        color: PIE_COLORS[idx % PIE_COLORS.length],
+        color: CATEGORY_COLORS[idx % CATEGORY_COLORS.length],
       }))
       .sort((a, b) => b.value - a.value);
   }, [monthExpenses]);
@@ -129,14 +140,14 @@ export const DashboardView: React.FC<{
     });
 
     return Object.entries(daysMap).map(([day, val]) => ({
-      day: `Day ${day}`,
+      day: `D${day}`,
       expense: val.expense,
       income: val.income,
     }));
   }, [monthExpenses, monthIncomes]);
 
   // Financial Health Metrics
-  const avgDailySpend = totalExpense / (monthExpenses.length > 0 ? 17 : 30); // 17 days into August
+  const avgDailySpend = totalExpense / (monthExpenses.length > 0 ? 17 : 30);
   const largestExpense = useMemo(() => {
     if (monthExpenses.length === 0) return null;
     return [...monthExpenses].sort((a, b) => b.convertedAmount - a.convertedAmount)[0];
@@ -147,174 +158,368 @@ export const DashboardView: React.FC<{
     return [...monthIncomes].sort((a, b) => b.convertedAmount - a.convertedAmount)[0];
   }, [monthIncomes]);
 
+  // Recent transactions (merged top 5)
+  const recentTransactions = useMemo(() => {
+    const inc = monthIncomes.map(i => ({
+      id: i.id,
+      title: i.source,
+      category: i.categoryName,
+      date: i.date,
+      time: i.time,
+      amount: i.convertedAmount,
+      type: 'income' as const,
+      account: accounts.find(a => a.id === i.accountId)?.name || 'Account',
+    }));
+    const exp = monthExpenses.map(e => ({
+      id: e.id,
+      title: e.title,
+      category: e.categoryName,
+      date: e.date,
+      time: e.time,
+      amount: e.convertedAmount,
+      type: 'expense' as const,
+      account: accounts.find(a => a.id === e.accountId)?.name || 'Account',
+    }));
+
+    return [...inc, ...exp]
+      .sort((a, b) => new Date(`${b.date}T${b.time || '12:00'}`).getTime() - new Date(`${a.date}T${a.time || '12:00'}`).getTime())
+      .slice(0, 5);
+  }, [monthIncomes, monthExpenses, accounts]);
+
   // Available Month Periods from dataset
   const availablePeriods = ['2026-08', '2026-07', '2026-06', '2026-05'];
 
   return (
     <div className="space-y-6">
-      {/* Top Header & Period Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      {/* Top Header & Period Control Panel */}
+      <div className="bg-white p-5 rounded-lg border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-            <span>Executive Financial Overview</span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-              Live Tracker
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              Executive Financial Overview
+            </h1>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              Live Ledger
             </span>
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Single-user production ledger with automated exchange rate conversion to {profile.baseCurrency}
+          </div>
+          <p className="text-xs text-slate-500 mt-1">
+            Personal wealth management & real-time daily expenditure in <span className="font-semibold text-slate-700">{profile.baseCurrency}</span>
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200">
-            <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+        <div className="flex items-center flex-wrap gap-2.5">
+          {/* Period Selector */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs">
+            <Calendar className="w-3.5 h-3.5 text-emerald-600" />
             <select
               value={selectedPeriod}
               onChange={e => setSelectedPeriod(e.target.value)}
-              className="bg-transparent outline-none font-bold cursor-pointer"
+              className="bg-transparent outline-none font-bold text-slate-800 cursor-pointer"
             >
               {availablePeriods.map(p => (
-                <option key={p} value={p} className="dark:bg-slate-900">
+                <option key={p} value={p} className="text-slate-800">
                   {new Date(p + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </option>
               ))}
             </select>
           </div>
 
+          {/* Quick Actions */}
           <button
-            onClick={() => onOpenQuickAdd('expense')}
-            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 shadow-xs transition"
+            id="dashboard-quick-income"
+            onClick={() => onOpenQuickAdd('income')}
+            className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold flex items-center gap-1.5 transition active:scale-[0.98]"
           >
-            <Plus className="w-3.5 h-3.5" /> Quick Entry
+            <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
+            + Income
+          </button>
+
+          <button
+            id="dashboard-quick-expense"
+            onClick={() => onOpenQuickAdd('expense')}
+            className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition active:scale-[0.98]"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add Expense
           </button>
         </div>
       </div>
 
-      {/* 4 Key Summary Metric Cards */}
+      {/* 4 Core Financial KPI Metric Cards (Emerald-600 for positive, Rose-600 for expenses) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Income */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Income</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+        {/* Total Income Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          whileHover={{ y: -2 }}
+          className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between transition-all hover:border-emerald-300 hover:shadow-sm"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Total Inflow / Income
+            </span>
+            <div className="w-9 h-9 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shadow-2xs">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
-            {formatCurrency(totalIncome)}
-          </div>
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>
-              {prevTotalIncome > 0 ? `${(((totalIncome - prevTotalIncome) / prevTotalIncome) * 100).toFixed(1)}% vs last month` : 'Monthly earned'}
-            </span>
-          </div>
-        </div>
 
-        {/* Total Expenses */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Expense</span>
-            <div className="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+          <div className="mt-3">
+            <div className="text-2xl font-extrabold text-slate-900 font-mono tracking-tight">
+              {formatCurrency(totalIncome)}
+            </div>
+            <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+              <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
+              <span>
+                {prevTotalIncome > 0
+                  ? `${(((totalIncome - prevTotalIncome) / prevTotalIncome) * 100).toFixed(1)}% vs previous month`
+                  : `${monthIncomes.length} deposits logged`}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Total Expense Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, delay: 0.05 }}
+          whileHover={{ y: -2 }}
+          className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between transition-all hover:border-rose-300 hover:shadow-sm"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Total Outflow / Expense
+            </span>
+            <div className="w-9 h-9 rounded-lg bg-rose-50 border border-rose-200/80 text-rose-600 flex items-center justify-center shadow-2xs">
               <TrendingDown className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
-            {formatCurrency(totalExpense)}
-          </div>
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-rose-600 dark:text-rose-400 font-medium">
-            <ArrowDownRight className="w-3.5 h-3.5" />
-            <span>
-              {prevTotalExpense > 0 ? `${(((totalExpense - prevTotalExpense) / prevTotalExpense) * 100).toFixed(1)}% vs last month` : 'Monthly spent'}
-            </span>
-          </div>
-        </div>
 
-        {/* Net Savings */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Net Savings</span>
-            <div className="w-8 h-8 rounded-xl bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+          <div className="mt-3">
+            <div className="text-2xl font-extrabold text-rose-600 font-mono tracking-tight">
+              {formatCurrency(totalExpense)}
+            </div>
+            <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-rose-600">
+              <ArrowDownRight className="w-3.5 h-3.5 shrink-0" />
+              <span>
+                {prevTotalExpense > 0
+                  ? `${(((totalExpense - prevTotalExpense) / prevTotalExpense) * 100).toFixed(1)}% vs previous month`
+                  : `${monthExpenses.length} expense debits`}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Net Savings Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, delay: 0.1 }}
+          whileHover={{ y: -2 }}
+          className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between transition-all hover:border-slate-300 hover:shadow-sm"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Net Savings Balance
+            </span>
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-2xs border ${
+              netSavings >= 0
+                ? 'bg-emerald-50 border-emerald-200/80 text-emerald-600'
+                : 'bg-rose-50 border-rose-200/80 text-rose-600'
+            }`}>
               <PiggyBank className="w-4 h-4" />
             </div>
           </div>
-          <div className={`text-2xl font-extrabold ${netSavings >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-            {formatCurrency(netSavings)}
-          </div>
-          <div className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
-            <span>Savings Rate:</span>
-            <span className="font-bold text-sky-600 dark:text-sky-400">{savingsRate.toFixed(1)}%</span>
-          </div>
-        </div>
 
-        {/* Net Worth */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Net Worth</span>
-            <div className="w-8 h-8 rounded-xl bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-              <Wallet className="w-4 h-4" />
+          <div className="mt-3">
+            <div className={`text-2xl font-extrabold font-mono tracking-tight ${
+              netSavings >= 0 ? 'text-emerald-600' : 'text-rose-600'
+            }`}>
+              {formatCurrency(netSavings)}
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+              <span>Savings Rate:</span>
+              <span className={`font-mono font-bold ${netSavings >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {savingsRate.toFixed(1)}%
+              </span>
             </div>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 dark:text-white">
-            {formatCurrency(netWorth)}
+        </motion.div>
+
+        {/* Total Net Worth Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, delay: 0.15 }}
+          whileHover={{ y: -2 }}
+          className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between transition-all hover:border-slate-300 hover:shadow-sm"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Consolidated Net Worth
+            </span>
+            <div className="w-9 h-9 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center shadow-2xs">
+              <Wallet className="w-4 h-4 text-emerald-600" />
+            </div>
           </div>
-          <div className="mt-2 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Liq: {formatCurrency(totalAccountBalance, undefined, { compact: true })}</span>
-            <span>DPS: {formatCurrency(totalInvestmentValue, undefined, { compact: true })}</span>
+
+          <div className="mt-3">
+            <div className="text-2xl font-extrabold text-slate-900 font-mono tracking-tight">
+              {formatCurrency(netWorth)}
+            </div>
+            <div className="mt-2 flex items-center justify-between text-[11px] font-mono text-slate-500">
+              <span className="text-emerald-600 font-semibold">Liquid: {formatCurrency(totalAccountBalance, undefined, { compact: true })}</span>
+              <span className="text-slate-600">DPS: {formatCurrency(totalInvestmentValue, undefined, { compact: true })}</span>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Daily Quick Expense Logger Bar */}
-      <DailyExpenseLogger />
+      <div className="rounded-lg overflow-hidden border border-slate-200/90">
+        <DailyExpenseLogger />
+      </div>
 
-      {/* Charts Row: Income Sources Donut + Category Expense Breakdown */}
+      {/* Primary Analytics Grid (Cashflow Trend + Category Breakdown) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Income Sources Donut (Salary vs Freelance vs Other) */}
-        <div className="lg:col-span-5 p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-emerald-500" /> Income Stream Breakdown
-            </h3>
-            <span className="text-[11px] text-slate-400">{monthIncomes.length} deposits</span>
+        {/* Daily Cashflow Trend Area Chart (8 Columns) */}
+        <div className="lg:col-span-8 p-5 bg-white rounded-lg border border-slate-200/90 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                Daily Cashflow Timeline
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Income credits (<span className="text-emerald-600 font-semibold">Emerald</span>) vs Expense debits (<span className="text-rose-600 font-semibold">Rose</span>)
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-1.5 font-medium text-slate-700">
+                <div className="w-2.5 h-2.5 rounded-xs bg-emerald-600" />
+                <span>Credits</span>
+              </div>
+              <div className="flex items-center gap-1.5 font-medium text-slate-700">
+                <div className="w-2.5 h-2.5 rounded-xs bg-rose-600" />
+                <span>Debits</span>
+              </div>
+            </div>
           </div>
 
-          <div className="h-56 w-full">
-            {incomeSourcesData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={incomeSourcesData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={80}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {incomeSourcesData.map((entry, idx) => (
-                      <Cell key={`cell-${idx}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(val: number) => formatCurrency(val)} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-400">No income records for this month</div>
-            )}
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={dailySpendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#059669" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#059669" stopOpacity={0.0} />
+                  </linearGradient>
+                  <linearGradient id="roseGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#e11d48" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#e11d48" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.12} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                <Tooltip
+                  formatter={(v: number) => [formatCurrency(v), '']}
+                  contentStyle={{
+                    backgroundColor: '#0f172a',
+                    borderColor: '#334155',
+                    borderRadius: '0.5rem',
+                    color: '#f8fafc',
+                    fontSize: '12px',
+                    fontFamily: 'JetBrains Mono',
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="income"
+                  name="Income Credits"
+                  stroke="#059669"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#emeraldGrad)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="expense"
+                  name="Expense Debits"
+                  stroke="#e11d48"
+                  strokeWidth={2}
+                  fillOpacity={1}
+                  fill="url(#roseGrad)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Income Sources Donut (4 Columns) */}
+        <div className="lg:col-span-4 p-5 bg-white rounded-lg border border-slate-200/90 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-emerald-600" />
+                Income Stream Breakdown
+              </h3>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-mono">
+                {monthIncomes.length} Entries
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">Source allocations for {selectedPeriod}</p>
+
+            <div className="h-44 w-full mt-2">
+              {incomeSourcesData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={incomeSourcesData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={48}
+                      outerRadius={68}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {incomeSourcesData.map((entry, idx) => (
+                        <Cell key={`cell-${idx}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val: number) => [formatCurrency(val), 'Amount']}
+                      contentStyle={{
+                        backgroundColor: '#0f172a',
+                        borderColor: '#334155',
+                        borderRadius: '0.5rem',
+                        color: '#f8fafc',
+                        fontSize: '12px',
+                        fontFamily: 'JetBrains Mono',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-xs text-slate-400">
+                  No income entries for this month
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="space-y-2 mt-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="space-y-2 mt-3 pt-3 border-t border-slate-100">
             {incomeSourcesData.map(item => (
               <div key={item.name} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-slate-600 dark:text-slate-300 font-medium">{item.name}</span>
+                  <span className="text-slate-600 font-medium">{item.name}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(item.value)}</span>
-                  <span className="text-slate-400 text-[10px]">
+                <div className="flex items-center gap-2 font-mono">
+                  <span className="font-bold text-slate-900">{formatCurrency(item.value)}</span>
+                  <span className="text-slate-400 text-[11px]">
                     ({totalIncome > 0 ? ((item.value / totalIncome) * 100).toFixed(0) : 0}%)
                   </span>
                 </div>
@@ -322,162 +527,323 @@ export const DashboardView: React.FC<{
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Expense Category Breakdown */}
-        <div className="lg:col-span-7 p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      {/* Secondary Row: Category Spending & Quick Account Balances */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Category Expense Breakdown (7 Columns) */}
+        <div className="lg:col-span-7 p-5 bg-white rounded-lg border border-slate-200/90 shadow-xs">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Layers className="w-4 h-4 text-rose-500" /> Spending by Category
-            </h3>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-rose-600" />
+                Spending by Category
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">Top expenditure categories this period</p>
+            </div>
             <button
               onClick={() => onSelectTab('budgets')}
-              className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-0.5"
+              className="text-xs text-emerald-600 hover:underline font-semibold flex items-center gap-1"
             >
-              Manage Budgets <ChevronRight className="w-3.5 h-3.5" />
+              Budgets & Limits <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="h-56 w-full">
+          <div className="h-52 w-full">
             {categoryExpensesData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoryExpensesData.slice(0, 6)} layout="vertical" margin={{ left: 20, right: 20 }}>
+                <BarChart data={categoryExpensesData.slice(0, 5)} layout="vertical" margin={{ left: 10, right: 20 }}>
                   <XAxis type="number" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={110} />
-                  <Tooltip formatter={(v: number) => formatCurrency(v)} />
-                  <Bar dataKey="value" radius={[0, 6, 6, 0]}>
-                    {categoryExpensesData.slice(0, 6).map((entry, index) => (
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={100} />
+                  <Tooltip
+                    formatter={(v: number) => [formatCurrency(v), 'Spent']}
+                    contentStyle={{
+                      backgroundColor: '#0f172a',
+                      borderColor: '#334155',
+                      borderRadius: '0.5rem',
+                      color: '#f8fafc',
+                      fontSize: '12px',
+                      fontFamily: 'JetBrains Mono',
+                    }}
+                  />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                    {categoryExpensesData.slice(0, 5).map((entry, index) => (
                       <Cell key={`bar-${index}`} fill={entry.color} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-400">No expenses recorded yet</div>
+              <div className="h-full flex items-center justify-center text-xs text-slate-400">
+                No expense entries recorded yet
+              </div>
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-3 pt-3 border-t border-slate-100">
             {categoryExpensesData.slice(0, 6).map(c => (
-              <div key={c.name} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 text-xs">
+              <div key={c.name} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/70 text-xs">
                 <p className="text-[11px] text-slate-500 truncate">{c.name}</p>
-                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{formatCurrency(c.value)}</p>
+                <p className="font-bold text-slate-900 font-mono mt-0.5">{formatCurrency(c.value)}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Daily Spend Trend Area Chart */}
-      <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="flex items-center justify-between mb-4">
+        {/* Account Wallets & Balances (5 Columns) */}
+        <div className="lg:col-span-5 p-5 bg-white rounded-lg border border-slate-200/90 shadow-xs flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Daily Cashflow Trend</h3>
-            <p className="text-xs text-slate-400">Daily income credits vs expense debits throughout {selectedPeriod}</p>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Landmark className="w-4 h-4 text-emerald-600" />
+                Connected Accounts & Wallets
+              </h3>
+              <button
+                onClick={() => onSelectTab('accounts')}
+                className="text-xs text-emerald-600 hover:underline font-semibold flex items-center gap-0.5"
+              >
+                All Accounts <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 mb-3">Live balances per funding instrument</p>
+
+            <div className="space-y-2.5">
+              {accounts.slice(0, 4).map(acc => {
+                const isMobileWallet = acc.type === 'bkash' || acc.type === 'nagad' || acc.type === 'rocket';
+                const isBank = acc.type === 'bank';
+                const isCash = acc.type === 'cash';
+
+                return (
+                  <div
+                    key={acc.id}
+                    className="p-3 rounded-lg bg-slate-50 border border-slate-200/70 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-2xs">
+                        {isMobileWallet ? (
+                          <Smartphone className="w-4 h-4 text-pink-600" />
+                        ) : isBank ? (
+                          <Landmark className="w-4 h-4 text-blue-600" />
+                        ) : isCash ? (
+                          <DollarSign className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <CreditCard className="w-4 h-4 text-violet-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">{acc.name}</p>
+                        <p className="text-[11px] text-slate-500 capitalize">{acc.type} • {acc.currency}</p>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-xs font-bold font-mono text-slate-900">
+                        {formatCurrency(acc.balance, acc.currency)}
+                      </p>
+                      <span className="text-[10px] font-semibold text-emerald-600">Active</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="text-slate-500 font-medium">Total Liquid Capital:</span>
+            <span className="font-extrabold font-mono text-emerald-600 text-sm">
+              {formatCurrency(totalAccountBalance)}
+            </span>
           </div>
         </div>
-
-        <div className="h-60 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={dailySpendData}>
-              <defs>
-                <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
-                </linearGradient>
-                <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-              <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: number) => formatCurrency(v)} />
-              <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-              <Area type="monotone" dataKey="income" name="Income Credits" stroke="#10b981" fillOpacity={1} fill="url(#incomeGrad)" />
-              <Area type="monotone" dataKey="expense" name="Expense Debits" stroke="#f43f5e" fillOpacity={1} fill="url(#expenseGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
       </div>
 
-      {/* Financial Health Indicators & Top Spending */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Avg Daily Spend</p>
-          <p className="text-lg font-extrabold text-slate-900 dark:text-white mt-1">
+      {/* Financial Health Indicators & Micro-Analytics (4 Grid Cards) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Daily Burn Rate */}
+        <div className="p-4 rounded-lg bg-white border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Daily Burn Rate</span>
+            <Clock className="w-4 h-4 text-rose-500" />
+          </div>
+          <p className="text-lg font-extrabold text-rose-600 font-mono mt-1.5">
             {formatCurrency(avgDailySpend)}
           </p>
-          <p className="text-[10px] text-slate-500 mt-1">Average daily cash burn rate</p>
+          <p className="text-[11px] text-slate-500 mt-1">Average daily cash burn speed</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Freelance to Salary Ratio</p>
-          <p className="text-lg font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">
+        {/* Side Income Multiplier */}
+        <div className="p-4 rounded-lg bg-white border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Side Income Ratio</span>
+            <Percent className="w-4 h-4 text-emerald-600" />
+          </div>
+          <p className="text-lg font-extrabold text-emerald-600 font-mono mt-1.5">
             {totalIncome > 0
               ? `${((incomeSourcesData.find(i => i.name.includes('Freelance'))?.value || 0) / (incomeSourcesData.find(i => i.name.includes('Salary'))?.value || 1)).toFixed(2)}x`
               : '0.00x'}
           </p>
-          <p className="text-[10px] text-slate-500 mt-1">Side income multiplying factor</p>
+          <p className="text-[11px] text-slate-500 mt-1">Freelance vs base salary multiplier</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Largest Expense</p>
-          <p className="text-lg font-extrabold text-rose-600 dark:text-rose-400 mt-1 truncate">
+        {/* Largest Single Expense in Rose-600 */}
+        <div className="p-4 rounded-lg bg-white border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Largest Expense</span>
+            <ArrowDownRight className="w-4 h-4 text-rose-600" />
+          </div>
+          <p className="text-lg font-extrabold text-rose-600 font-mono mt-1.5 truncate">
             {largestExpense ? formatCurrency(largestExpense.convertedAmount) : 'None'}
           </p>
-          <p className="text-[10px] text-slate-500 mt-1 truncate">{largestExpense?.categoryName || 'No expenses'}</p>
+          <p className="text-[11px] text-slate-500 mt-1 truncate">
+            {largestExpense ? `${largestExpense.title} (${largestExpense.categoryName})` : 'No expenses logged'}
+          </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Largest Single Income</p>
-          <p className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400 mt-1 truncate">
+        {/* Largest Single Income in Emerald-600 */}
+        <div className="p-4 rounded-lg bg-white border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Largest Inflow</span>
+            <ArrowUpRight className="w-4 h-4 text-emerald-600" />
+          </div>
+          <p className="text-lg font-extrabold text-emerald-600 font-mono mt-1.5 truncate">
             {largestIncome ? formatCurrency(largestIncome.convertedAmount) : 'None'}
           </p>
-          <p className="text-[10px] text-slate-500 mt-1 truncate">{largestIncome?.source || 'No incomes'}</p>
+          <p className="text-[11px] text-slate-500 mt-1 truncate">
+            {largestIncome ? `${largestIncome.source}` : 'No deposits logged'}
+          </p>
         </div>
       </div>
 
-      {/* Budget Consumption Bars */}
-      <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Active Category Budgets</h3>
-          <button
-            onClick={() => onSelectTab('budgets')}
-            className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-          >
-            All Budgets <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+      {/* Lower Row: Active Category Budgets & Recent Transactions Feed */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Active Budgets (6 Columns) */}
+        <div className="lg:col-span-6 p-5 bg-white rounded-lg border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-500" />
+                Active Category Budgets
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">Budget threshold consumption monitoring</p>
+            </div>
+            <button
+              onClick={() => onSelectTab('budgets')}
+              className="text-xs font-semibold text-emerald-600 hover:underline flex items-center gap-1"
+            >
+              All Budgets <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {budgets.slice(0, 4).map(b => {
+              const spent = monthExpenses
+                .filter(e => e.categoryId === b.categoryId)
+                .reduce((sum, e) => sum + e.convertedAmount, 0);
+              const percent = (spent / b.monthlyLimit) * 100;
+              const isOver = percent >= 100;
+              const isWarning = percent >= b.alertThresholdPercent && !isOver;
+
+              return (
+                <div
+                  key={b.id}
+                  className="p-3 rounded-lg bg-slate-50 border border-slate-200/70"
+                >
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className="font-bold text-slate-800">{b.categoryName}</span>
+                    <span
+                      className={`font-mono font-bold ${
+                        isOver
+                          ? 'text-rose-600 '
+                          : isWarning
+                          ? 'text-amber-600 '
+                          : 'text-slate-700 '
+                      }`}
+                    >
+                      {formatCurrency(spent)} / {formatCurrency(b.monthlyLimit)} ({percent.toFixed(0)}%)
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        isOver ? 'bg-rose-600' : isWarning ? 'bg-amber-500' : 'bg-emerald-600'
+                      }`}
+                      style={{ width: `${Math.min(100, percent)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {budgets.slice(0, 4).map(b => {
-            const spent = monthExpenses
-              .filter(e => e.categoryId === b.categoryId)
-              .reduce((sum, e) => sum + e.convertedAmount, 0);
-            const percent = (spent / b.monthlyLimit) * 100;
-            const isOver = percent >= 100;
-            const isWarning = percent >= b.alertThresholdPercent && !isOver;
+        {/* Recent Transactions Feed (6 Columns) */}
+        <div className="lg:col-span-6 p-5 bg-white rounded-lg border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <ArrowRightLeft className="w-4 h-4 text-emerald-600" />
+                Recent Ledger Activity
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">Latest chronological transactions</p>
+            </div>
+            <button
+              onClick={() => onSelectTab('expenses')}
+              className="text-xs font-semibold text-emerald-600 hover:underline flex items-center gap-1"
+            >
+              Full Ledger <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
-            return (
-              <div key={b.id} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60">
-                <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{b.categoryName}</span>
-                  <span className={`font-bold ${isOver ? 'text-rose-600' : isWarning ? 'text-amber-500' : 'text-slate-600 dark:text-slate-300'}`}>
-                    {formatCurrency(spent)} / {formatCurrency(b.monthlyLimit)} ({percent.toFixed(0)}%)
-                  </span>
+          <div className="space-y-2.5">
+            {recentTransactions.length > 0 ? (
+              recentTransactions.map(tx => (
+                <div
+                  key={tx.id}
+                  className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/70 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                        tx.type === 'income'
+                          ? 'bg-emerald-100  text-emerald-600 '
+                          : 'bg-rose-100  text-rose-600 '
+                      }`}
+                    >
+                      {tx.type === 'income' ? (
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      ) : (
+                        <ArrowDownRight className="w-3.5 h-3.5" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900 truncate max-w-[180px] sm:max-w-[240px]">
+                        {tx.title}
+                      </p>
+                      <p className="text-[10px] text-slate-500">
+                        {tx.category} • {tx.account} • {tx.date}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <p
+                      className={`text-xs font-mono font-bold ${
+                        tx.type === 'income'
+                          ? 'text-emerald-600 '
+                          : 'text-rose-600 '
+                      }`}
+                    >
+                      {tx.type === 'income' ? '+' : '-'}
+                      {formatCurrency(tx.amount)}
+                    </p>
+                    <span className="text-[10px] text-slate-400 capitalize">{tx.type}</span>
+                  </div>
                 </div>
-                <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-300 ${
-                      isOver ? 'bg-rose-500' : isWarning ? 'bg-amber-500' : 'bg-emerald-500'
-                    }`}
-                    style={{ width: `${Math.min(100, percent)}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
+              ))
+            ) : (
+              <div className="py-8 text-center text-xs text-slate-400">No transactions recorded for this period</div>
+            )}
+          </div>
         </div>
       </div>
     </div>

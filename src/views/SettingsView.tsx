@@ -82,18 +82,18 @@ export const SettingsView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
             <Settings className="w-5 h-5 text-emerald-600" /> Settings, Security & Data Backup
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Configure PIN authentication, base currency, JSON export/restore, and audit logs
           </p>
         </div>
 
         {saveSuccess && (
-          <span className="px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-1.5 animate-pulse">
+          <span className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1.5 animate-pulse">
             <CheckCircle2 className="w-4 h-4" /> Preferences saved!
           </span>
         )}
@@ -102,41 +102,41 @@ export const SettingsView: React.FC = () => {
       {/* Main Settings Forms */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile & Preferences */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <div className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <User className="w-4 h-4 text-emerald-500" /> Profile & Base Currency
           </h3>
 
           <form onSubmit={handleSaveProfile} className="space-y-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Base Currency</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Base Currency</label>
                 <select
                   value={baseCurrency}
                   onChange={e => setBaseCurrency(e.target.value as CurrencyCode)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 font-bold"
                 >
                   <option value="BDT">BDT (৳) - Bangladeshi Taka</option>
                   <option value="USD">USD ($) - US Dollar</option>
@@ -146,12 +146,12 @@ export const SettingsView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Timezone</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Timezone</label>
                 <input
                   type="text"
                   value={timezone}
                   onChange={e => setTimezone(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                 />
               </div>
             </div>
@@ -166,15 +166,15 @@ export const SettingsView: React.FC = () => {
         </div>
 
         {/* Security & PIN Lock */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <div className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <Lock className="w-4 h-4 text-emerald-500" /> App Security & PIN Lock Screen
           </h3>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Enable 4-Digit Security PIN</p>
+                <p className="text-xs font-bold text-slate-900">Enable 4-Digit Security PIN</p>
                 <p className="text-[11px] text-slate-400">Prompts for passcode on launch or after inactivity</p>
               </div>
 
@@ -188,7 +188,7 @@ export const SettingsView: React.FC = () => {
 
             {isPinLocked && (
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <label className="block text-xs font-semibold text-slate-700">
                   Set 4-Digit PIN Code (Current: {pinCode || 'None'})
                 </label>
                 <div className="flex gap-2">
@@ -198,7 +198,7 @@ export const SettingsView: React.FC = () => {
                     placeholder="Enter 4 digits (e.g. 1234)"
                     value={newPinInput}
                     onChange={e => setNewPinInput(e.target.value)}
-                    className="w-48 text-center text-sm font-mono tracking-widest px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                    className="w-48 text-center text-sm font-mono tracking-widest px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900"
                   />
                   <button
                     onClick={() => {
@@ -223,11 +223,11 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Backup & Disaster Recovery Card */}
-      <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+      <div className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
           <Database className="w-4 h-4 text-emerald-500" /> Complete Ledger Backup & JSON Export
         </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-slate-500">
           Save your complete database containing all accounts, incomes, expenses, loans, invoices, budgets, and investments to an encrypted JSON backup file.
         </p>
 
@@ -239,7 +239,7 @@ export const SettingsView: React.FC = () => {
             <Download className="w-4 h-4" /> Download JSON Backup
           </button>
 
-          <label className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 text-xs font-bold flex items-center gap-2 cursor-pointer">
+          <label className="px-4 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100 text-xs font-bold flex items-center gap-2 cursor-pointer">
             <Upload className="w-4 h-4 text-emerald-500" />
             <span>Restore from JSON File</span>
             <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
@@ -251,7 +251,7 @@ export const SettingsView: React.FC = () => {
                 resetToInitialData();
               }
             }}
-            className="px-4 py-2 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 text-xs font-bold flex items-center gap-2"
+            className="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold flex items-center gap-2"
           >
             <RotateCcw className="w-4 h-4" /> Reset to Initial Sample Data
           </button>
@@ -263,14 +263,14 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* Security Audit Log Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
           <History className="w-4 h-4 text-slate-500" /> Security & Modification Audit Trail ({auditLogs.length} Events)
         </h3>
 
         <div className="overflow-x-auto max-h-80 overflow-y-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-bold text-[10px] sticky top-0">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 uppercase font-bold text-[10px] sticky top-0">
               <tr>
                 <th className="p-3">Timestamp</th>
                 <th className="p-3">Action</th>
@@ -278,21 +278,21 @@ export const SettingsView: React.FC = () => {
                 <th className="p-3">Details / Delta</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
+            <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
               {auditLogs.map(log => (
-                <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr key={log.id} className="hover:bg-slate-50">
                   <td className="p-3 text-slate-400 whitespace-nowrap">{new Date(log.timestamp).toLocaleString()}</td>
                   <td className="p-3">
                     <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                      log.action.includes('DELETE') ? 'bg-rose-100 text-rose-700 dark:bg-rose-950' :
-                      log.action.includes('CREATE') ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950' :
-                      'bg-sky-100 text-sky-700 dark:bg-sky-950'
+                      log.action.includes('DELETE') ? 'bg-rose-100 text-rose-700 ' :
+                      log.action.includes('CREATE') ? 'bg-emerald-100 text-emerald-700 ' :
+                      'bg-sky-100 text-sky-700 '
                     }`}>
                       {log.action}
                     </span>
                   </td>
-                  <td className="p-3 font-semibold text-slate-700 dark:text-slate-300">{log.entityType}</td>
-                  <td className="p-3 text-slate-600 dark:text-slate-300">{log.details}</td>
+                  <td className="p-3 font-semibold text-slate-700">{log.entityType}</td>
+                  <td className="p-3 text-slate-600">{log.details}</td>
                 </tr>
               ))}
             </tbody>
