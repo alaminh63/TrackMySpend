@@ -71,78 +71,78 @@ export const LoansView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-            <Handshake className="w-5 h-5 text-amber-500" /> Loans & Debt Ledger (ধার-দেনা)
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 flex items-center gap-2">
+            <Handshake className="w-5 h-5 text-emerald-600" /> Loans & Debt Ledger (ধার-দেনা)
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Track money lent to friends/family and money borrowed with partial repayment schedules
           </p>
         </div>
 
         <button
           onClick={() => onOpenQuickAdd('loan')}
-          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-600/30"
+          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 shadow-sm shadow-emerald-600/30 transition active:scale-[0.98]"
         >
-          <Plus className="w-3.5 h-3.5" /> Record Loan / ধার
+          <Plus className="w-4 h-4" /> Record Loan / ধার
         </button>
       </div>
 
       {/* Summary Cards: Lent vs Borrowed */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Money Lent (Receivable) */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/70 to-teal-50/40 border border-emerald-100/80 shadow-xs">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Money Lent (I gave / Receivable)</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+            <span className="text-xs font-medium uppercase tracking-wider text-emerald-800">Total Money Lent (I gave / Receivable)</span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-emerald-600">
+          <div className="text-2xl sm:text-3xl font-semibold text-emerald-700 font-mono tracking-tight">
             {formatCurrency(totalLoansReceivable)}
           </div>
-          <p className="text-xs text-slate-500 mt-1">Pending to be collected from borrowers</p>
+          <p className="text-xs text-emerald-700/80 mt-1">Pending to be collected from borrowers</p>
         </div>
 
         {/* Money Borrowed (Payable) */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-rose-50/70 to-rose-50/30 border border-rose-100/80 shadow-xs">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Borrowed (I took / Payable)</span>
-            <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+            <span className="text-xs font-medium uppercase tracking-wider text-rose-800">Total Borrowed (I took / Payable)</span>
+            <div className="w-9 h-9 rounded-xl bg-rose-100/80 text-rose-700 flex items-center justify-center">
               <TrendingDown className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-rose-600">
+          <div className="text-2xl sm:text-3xl font-semibold text-rose-600 font-mono tracking-tight">
             {formatCurrency(totalLoansPayable)}
           </div>
-          <p className="text-xs text-slate-500 mt-1">Outstanding debt to be repaid</p>
+          <p className="text-xs text-rose-600/80 mt-1">Outstanding debt to be repaid</p>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-fit text-xs font-semibold">
+      <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl w-fit text-xs sm:text-sm font-medium overflow-x-auto max-w-full">
         <button
           onClick={() => setActiveFilter('all')}
-          className={`px-3 py-1.5 rounded-lg transition ${activeFilter === 'all' ? 'bg-white  text-slate-900  font-bold shadow-xs' : 'text-slate-600 '}`}
+          className={`px-3.5 py-1.5 rounded-xl transition whitespace-nowrap ${activeFilter === 'all' ? 'bg-white text-slate-900 font-semibold shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
         >
           All Records ({loans.length})
         </button>
         <button
           onClick={() => setActiveFilter('lent')}
-          className={`px-3 py-1.5 rounded-lg transition ${activeFilter === 'lent' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-slate-600 '}`}
+          className={`px-3.5 py-1.5 rounded-xl transition whitespace-nowrap ${activeFilter === 'lent' ? 'bg-emerald-600 text-white font-medium shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
         >
           Money Lent (Receivable)
         </button>
         <button
           onClick={() => setActiveFilter('borrowed')}
-          className={`px-3 py-1.5 rounded-lg transition ${activeFilter === 'borrowed' ? 'bg-rose-600 text-white font-bold shadow-xs' : 'text-slate-600 '}`}
+          className={`px-3.5 py-1.5 rounded-xl transition whitespace-nowrap ${activeFilter === 'borrowed' ? 'bg-rose-600 text-white font-medium shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
         >
           Money Borrowed (Payable)
         </button>
         <button
           onClick={() => setActiveFilter('settled')}
-          className={`px-3 py-1.5 rounded-lg transition ${activeFilter === 'settled' ? 'bg-slate-700 text-white font-bold shadow-xs' : 'text-slate-600 '}`}
+          className={`px-3.5 py-1.5 rounded-xl transition whitespace-nowrap ${activeFilter === 'settled' ? 'bg-slate-800 text-white font-medium shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
         >
           Fully Settled
         </button>

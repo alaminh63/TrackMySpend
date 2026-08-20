@@ -267,19 +267,70 @@ export interface AppNotification {
   linkTab?: string;
 }
 
+export type UserRole = 'admin' | 'manager' | 'viewer' | 'auditor';
+
+export interface UserPermissions {
+  canAddExpense: boolean;
+  canEditExpense: boolean;
+  canDeleteExpense: boolean;
+  canManageIncomeSalary: boolean;
+  canManageBudgets: boolean;
+  canManageAccounts: boolean;
+  canManageLoans: boolean;
+  canManageInvestments: boolean;
+  canManageInvoices: boolean;
+  canExportReports: boolean;
+  canManageUsersAndRoles: boolean;
+  canManageSettings: boolean;
+  canEmptyTrash: boolean;
+}
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  designation?: string;
+  avatarUrl?: string;
+  isLocked?: boolean;
+  phone?: string;
+  pinCode?: string;
+  createdAt: string;
+  lastLogin?: string;
+}
+
+export interface SecurityEvent {
+  id: string;
+  type: 'auth_login' | 'auth_logout' | 'auth_register' | 'role_change' | 'pin_reset' | 'permission_denied' | 'security_update';
+  userId: string;
+  userName: string;
+  userRole: UserRole;
+  description: string;
+  ipAddress?: string;
+  timestamp: string;
+  status: 'success' | 'warning' | 'danger';
+}
+
 export interface AuditLog {
   id: string;
-  action: 'create' | 'update' | 'delete' | 'restore' | 'transfer' | 'repayment' | 'backup_restore';
-  entityType: 'income' | 'expense' | 'transfer' | 'loan' | 'budget' | 'account' | 'investment' | 'goal' | 'invoice' | 'system';
+  action: 'create' | 'update' | 'delete' | 'restore' | 'transfer' | 'repayment' | 'backup_restore' | 'auth_login' | 'role_change';
+  entityType: 'income' | 'expense' | 'transfer' | 'loan' | 'budget' | 'account' | 'investment' | 'goal' | 'invoice' | 'system' | 'user' | 'security';
   entityId: string;
   summary: string;
   details?: string;
   timestamp: string;
+  performedBy?: {
+    userId: string;
+    userName: string;
+    userRole: UserRole;
+  };
 }
 
 export interface UserProfile {
+  id: string;
   name: string;
   email: string;
+  role: UserRole;
   baseCurrency: CurrencyCode;
   timezone: string;
   isPinLocked: boolean;
@@ -287,4 +338,6 @@ export interface UserProfile {
   twoFactorEnabled: boolean;
   avatarUrl?: string;
   autoLockMinutes: number;
+  sessionTimeoutMinutes?: number;
+  phone?: string;
 }

@@ -111,46 +111,46 @@ export const SavingsGoalsView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 flex items-center gap-2">
             <Target className="w-5 h-5 text-emerald-600" /> Savings Goals & Emergency Reserve
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Set visual targets for emergency funds, vacations, tech upgrades, and retirement milestones
           </p>
         </div>
 
         <button
           onClick={() => setShowGoalModal(true)}
-          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-600/30"
+          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 shadow-sm shadow-emerald-600/30 transition active:scale-[0.98]"
         >
-          <Plus className="w-3.5 h-3.5" /> Create Savings Goal
+          <Plus className="w-4 h-4" /> Create Savings Goal
         </button>
       </div>
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Total Goals Target</p>
-          <p className="text-2xl font-black text-slate-900 mt-1">{formatCurrency(totalTarget)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Cumulative goal target sum</p>
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-indigo-50/40 border border-indigo-100/70 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-indigo-700">Total Goals Target</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-1 font-mono tracking-tight">{formatCurrency(totalTarget)}</p>
+          <p className="text-xs text-slate-500 mt-0.5">Cumulative goal target sum</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Total Saved So Far</p>
-          <p className="text-2xl font-black text-emerald-600 mt-1">{formatCurrency(totalSaved)}</p>
-          <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/60 to-teal-50/30 border border-emerald-100/80 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-emerald-700">Total Saved So Far</p>
+          <p className="text-2xl font-semibold text-emerald-700 mt-1 font-mono tracking-tight">{formatCurrency(totalSaved)}</p>
+          <p className="text-xs text-emerald-600 font-medium mt-0.5">
             {totalTarget > 0 ? `${((totalSaved / totalTarget) * 100).toFixed(1)}% of total targets reached` : '0%'}
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Remaining Gap</p>
-          <p className="text-2xl font-black text-indigo-600 mt-1">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-50/60 to-indigo-50/30 border border-purple-100/80 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-purple-700">Remaining Gap</p>
+          <p className="text-2xl font-semibold text-purple-700 mt-1 font-mono tracking-tight">
             {formatCurrency(Math.max(0, totalTarget - totalSaved))}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Remaining to full milestone completion</p>
+          <p className="text-xs text-slate-500 mt-0.5">Remaining to full milestone completion</p>
         </div>
       </div>
 
@@ -169,24 +169,24 @@ export const SavingsGoalsView: React.FC<{
           return (
             <div
               key={goal.id}
-              className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between"
+              className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-slate-300 transition"
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 font-bold flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200/70 text-amber-700 font-medium flex items-center justify-center shadow-xs">
                       <Trophy className="w-5 h-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-sm text-slate-900">{goal.name}</h4>
+                        <h4 className="font-semibold text-sm sm:text-base text-slate-900">{goal.name}</h4>
                         {isCompleted && (
-                          <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center gap-0.5">
-                            <Sparkles className="w-3 h-3 text-amber-500" /> Completed
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-amber-500" /> Reached
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-400">{goal.category} {goal.targetDate ? `• Target: ${goal.targetDate}` : ''}</p>
+                      <p className="text-xs text-slate-400">{goal.category} {goal.targetDate ? `• Target: ${goal.targetDate}` : ''}</p>
                     </div>
                   </div>
 
@@ -196,39 +196,40 @@ export const SavingsGoalsView: React.FC<{
                         deleteSavingsGoal(goal.id);
                       }
                     }}
-                    className="p-1 text-slate-400 hover:text-rose-500 rounded"
+                    className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg transition"
+                    title="Delete Goal"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
 
                 {/* Progress Bar & Amounts */}
                 <div className="space-y-2 my-4">
                   <div className="flex items-baseline justify-between">
-                    <span className="text-xs text-slate-500 font-medium">Accumulated:</span>
-                    <div className="text-right">
-                      <span className="text-xl font-black text-emerald-600">
+                    <span className="text-xs sm:text-sm text-slate-500 font-medium">Accumulated:</span>
+                    <div className="text-right font-mono">
+                      <span className="text-lg sm:text-xl font-semibold text-emerald-600">
                         {formatCurrency(goal.currentAmount)}
                       </span>
                       <span className="text-xs text-slate-400"> / {formatCurrency(goal.targetAmount)}</span>
                     </div>
                   </div>
 
-                  <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/50">
+                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/50">
                     <div
-                      className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
                       style={{ width: `${Math.min(100, progress)}%` }}
                     />
                   </div>
 
-                  <div className="flex justify-between text-[11px] text-slate-500 font-semibold pt-1">
+                  <div className="flex justify-between text-xs text-slate-500 font-medium pt-1">
                     <span>{progress.toFixed(1)}% Achieved</span>
-                    <span>Gap: {formatCurrency(remaining)}</span>
+                    <span>Remaining: {formatCurrency(remaining)}</span>
                   </div>
                 </div>
 
                 {goal.notes && (
-                  <p className="text-xs text-slate-400 italic bg-slate-50 p-2.5 rounded-lg mb-2">
+                  <p className="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-xl mb-2 border border-slate-100">
                     "{goal.notes}"
                   </p>
                 )}
@@ -241,9 +242,9 @@ export const SavingsGoalsView: React.FC<{
                     setActiveWithdrawGoal(goal);
                     setAmountInput('');
                   }}
-                  className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium flex items-center gap-1 transition"
                 >
-                  <ArrowDownRight className="w-3.5 h-3.5 text-rose-500" /> Withdraw
+                  <ArrowDownRight className="w-4 h-4 text-rose-500" /> Withdraw
                 </button>
 
                 <button
@@ -251,9 +252,9 @@ export const SavingsGoalsView: React.FC<{
                     setActiveDepositGoal(goal);
                     setAmountInput('');
                   }}
-                  className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 shadow-xs"
+                  className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium flex items-center gap-1 shadow-xs transition active:scale-[0.98]"
                 >
-                  <ArrowUpRight className="w-3.5 h-3.5" /> Deposit Funds
+                  <ArrowUpRight className="w-4 h-4" /> Deposit Funds
                 </button>
               </div>
             </div>

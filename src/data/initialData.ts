@@ -1,5 +1,7 @@
 import {
   UserProfile,
+  UserAccount,
+  SecurityEvent,
   Category,
   Account,
   Income,
@@ -30,16 +32,108 @@ export const DEFAULT_EXCHANGE_RATES: ExchangeRates = {
   SGD: 91.2,
 };
 
+export const INITIAL_USERS: UserAccount[] = [
+  {
+    id: 'user-admin-1',
+    name: 'Alamin Hossain',
+    email: 'alamin.cloudgen@gmail.com',
+    role: 'admin',
+    designation: 'Financial Controller & Super Admin',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    phone: '+880 1711-000000',
+    pinCode: '1234',
+    createdAt: '2025-01-01T00:00:00Z',
+    lastLogin: '2026-08-19T05:30:00Z',
+  },
+  {
+    id: 'user-manager-2',
+    name: 'Nusrat Jahan (Accountant)',
+    email: 'manager@finance.bd',
+    role: 'manager',
+    designation: 'Finance & Accounts Manager',
+    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    phone: '+880 1819-112233',
+    pinCode: '2222',
+    createdAt: '2025-03-15T00:00:00Z',
+    lastLogin: '2026-08-18T16:20:00Z',
+  },
+  {
+    id: 'user-viewer-3',
+    name: 'Rafiqul Islam (Family)',
+    email: 'family@finance.bd',
+    role: 'viewer',
+    designation: 'Family Contributor / Member',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    phone: '+880 1912-334455',
+    pinCode: '3333',
+    createdAt: '2025-06-10T00:00:00Z',
+    lastLogin: '2026-08-17T11:15:00Z',
+  },
+  {
+    id: 'user-auditor-4',
+    name: 'Shakil Ahmed (Tax Auditor)',
+    email: 'auditor@finance.bd',
+    role: 'auditor',
+    designation: 'External Financial & Tax Auditor',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    phone: '+880 1610-998877',
+    pinCode: '4444',
+    createdAt: '2025-07-01T00:00:00Z',
+    lastLogin: '2026-08-16T09:40:00Z',
+  },
+];
+
 export const INITIAL_PROFILE: UserProfile = {
-  name: 'Alamin Hossein',
+  id: 'user-admin-1',
+  name: 'Alamin Hossain',
   email: 'alamin.cloudgen@gmail.com',
+  role: 'admin',
   baseCurrency: 'BDT',
   timezone: 'Asia/Dhaka',
   isPinLocked: false,
   pinCode: '1234',
   twoFactorEnabled: false,
   autoLockMinutes: 15,
+  sessionTimeoutMinutes: 30,
+  phone: '+880 1711-000000',
+  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
 };
+
+export const INITIAL_SECURITY_EVENTS: SecurityEvent[] = [
+  {
+    id: 'sec-1',
+    type: 'auth_login',
+    userId: 'user-admin-1',
+    userName: 'Alamin Hossain',
+    userRole: 'admin',
+    description: 'Admin signed in securely via Session Auth',
+    ipAddress: '103.230.104.22 (Dhaka, BD)',
+    timestamp: '2026-08-19T05:30:00Z',
+    status: 'success',
+  },
+  {
+    id: 'sec-2',
+    type: 'role_change',
+    userId: 'user-admin-1',
+    userName: 'Alamin Hossain',
+    userRole: 'admin',
+    description: 'Granted Financial Manager privileges to Nusrat Jahan',
+    ipAddress: '103.230.104.22',
+    timestamp: '2026-08-18T14:15:00Z',
+    status: 'success',
+  },
+  {
+    id: 'sec-3',
+    type: 'permission_denied',
+    userId: 'user-viewer-3',
+    userName: 'Rafiqul Islam',
+    userRole: 'viewer',
+    description: 'Attempted to edit sensitive salary records without elevation',
+    ipAddress: '103.230.107.50',
+    timestamp: '2026-08-17T11:20:00Z',
+    status: 'warning',
+  },
+];
 
 export const INITIAL_SALARY_LOGS: SalaryLog[] = [
   {

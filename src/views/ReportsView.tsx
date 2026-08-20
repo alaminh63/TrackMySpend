@@ -133,23 +133,23 @@ export const ReportsView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5 text-emerald-600" /> Financial Reports & Tax Estimation
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             P&L Cashflow statements, annual tax brackets, and official PDF/CSV audit reports
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 flex-wrap">
           {/* Period Selector */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+          <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs sm:text-sm font-medium border border-slate-200/60">
             <select
               value={reportMonth}
               onChange={e => setReportMonth(e.target.value)}
-              className="bg-transparent px-2 py-1 outline-none cursor-pointer"
+              className="bg-transparent px-2 py-1 outline-none cursor-pointer text-slate-800"
             >
               <option value="08">August</option>
               <option value="07">July</option>
@@ -159,7 +159,7 @@ export const ReportsView: React.FC = () => {
             <select
               value={reportYear}
               onChange={e => setReportYear(e.target.value)}
-              className="bg-transparent px-2 py-1 outline-none cursor-pointer"
+              className="bg-transparent px-2 py-1 outline-none cursor-pointer text-slate-800"
             >
               <option value="2026">2026</option>
               <option value="2025">2025</option>
@@ -168,46 +168,46 @@ export const ReportsView: React.FC = () => {
 
           <button
             onClick={() => exportTransactionsCsv(incomes, expenses, profile.baseCurrency)}
-            className="px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 transition"
           >
-            <Download className="w-3.5 h-3.5 text-slate-500" /> CSV
+            <Download className="w-4 h-4 text-slate-500" /> CSV
           </button>
 
           <button
             onClick={handleDownloadReportPdf}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-600/30"
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 shadow-sm shadow-emerald-600/30 transition active:scale-[0.98]"
           >
-            <FileText className="w-3.5 h-3.5" /> Export PDF Statement
+            <FileText className="w-4 h-4" /> Export PDF
           </button>
         </div>
       </div>
 
       {/* Monthly Financial Statement Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Total Month Revenue</p>
-          <p className="text-2xl font-black text-emerald-600 mt-1">{formatCurrency(monthTotalIncome)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">{monthlyIncomes.length} income deposits</p>
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/60 to-teal-50/30 border border-emerald-100/80 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-emerald-800">Total Month Revenue</p>
+          <p className="text-2xl font-semibold text-emerald-700 mt-1 font-mono tracking-tight">{formatCurrency(monthTotalIncome)}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{monthlyIncomes.length} income deposits</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Total Month Outflow</p>
-          <p className="text-2xl font-black text-rose-600 mt-1">{formatCurrency(monthTotalExpense)}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">{monthlyExpenses.length} expense items</p>
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-rose-50/60 to-rose-50/30 border border-rose-100/80 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-rose-800">Total Month Outflow</p>
+          <p className="text-2xl font-semibold text-rose-600 mt-1 font-mono tracking-tight">{formatCurrency(monthTotalExpense)}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{monthlyExpenses.length} expense items</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Net Month Savings</p>
-          <p className={`text-2xl font-black mt-1 ${monthNetSavings >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-indigo-50/40 border border-indigo-100/70 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-indigo-700">Net Month Savings</p>
+          <p className={`text-2xl font-semibold mt-1 font-mono tracking-tight ${monthNetSavings >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
             {formatCurrency(monthNetSavings)}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Surplus saved</p>
+          <p className="text-xs text-slate-500 mt-0.5">Surplus saved</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Savings Rate</p>
-          <p className="text-2xl font-black text-sky-600 mt-1">{monthSavingsRate.toFixed(1)}%</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Retained of earned capital</p>
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-sky-50/60 to-blue-50/30 border border-sky-100/80 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-sky-800">Savings Rate</p>
+          <p className="text-2xl font-semibold text-sky-700 mt-1 font-mono tracking-tight">{monthSavingsRate.toFixed(1)}%</p>
+          <p className="text-xs text-slate-500 mt-0.5">Retained of earned capital</p>
         </div>
       </div>
 

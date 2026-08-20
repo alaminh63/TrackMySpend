@@ -102,63 +102,63 @@ export const InvestmentsView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-emerald-600" /> Investments, DPS & Fixed Schemes
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Track DPS installments, Bangladesh Sanchayapatra, Bank FDRs, Stocks, and Gold assets
           </p>
         </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-600/30"
+          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 shadow-sm shadow-emerald-600/30 transition active:scale-[0.98]"
         >
-          <Plus className="w-3.5 h-3.5" /> Add Investment Asset
+          <Plus className="w-4 h-4" /> Add Asset
         </button>
       </div>
 
       {/* Investment Portfolio Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Total Portfolio Valuation</p>
-          <p className="text-2xl font-black text-slate-900 mt-1">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-indigo-50/40 border border-indigo-100/70 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-indigo-700">Total Portfolio Valuation</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-1 font-mono tracking-tight">
             {formatCurrency(totalInvestmentValue)}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Live estimated market & maturity value</p>
+          <p className="text-xs text-slate-500 mt-0.5">Live estimated market & maturity value</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Principal Invested</p>
-          <p className="text-2xl font-black text-slate-700 mt-1">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/60 border border-slate-200/80 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-600">Principal Invested</p>
+          <p className="text-2xl font-semibold text-slate-800 mt-1 font-mono tracking-tight">
             {formatCurrency(totalInvestedPrincipal)}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Total self-funded capital</p>
+          <p className="text-xs text-slate-500 mt-0.5">Total self-funded capital</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-slate-200">
-          <p className="text-[11px] font-bold uppercase text-slate-400">Accrued Profit / Returns</p>
-          <p className={`text-2xl font-black mt-1 ${totalProfits >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/60 to-teal-50/30 border border-emerald-100/80 shadow-xs">
+          <p className="text-xs font-medium uppercase tracking-wider text-emerald-700">Accrued Profit / Returns</p>
+          <p className={`text-2xl font-semibold mt-1 font-mono tracking-tight ${totalProfits >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
             +{formatCurrency(totalProfits)}
           </p>
-          <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">
+          <p className="text-xs text-emerald-600 font-medium mt-0.5">
             {totalInvestedPrincipal > 0 ? `+${((totalProfits / totalInvestedPrincipal) * 100).toFixed(1)}% total ROI` : '0% ROI'}
           </p>
         </div>
       </div>
 
       {/* Type Filter Pills */}
-      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-fit text-xs font-semibold">
+      <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl w-fit text-xs sm:text-sm font-medium overflow-x-auto max-w-full">
         {['all', 'DPS', 'FDR', 'Sanchayapatra', 'Stocks', 'Gold'].map(t => (
           <button
             key={t}
             onClick={() => setActiveTab(t as any)}
-            className={`px-3 py-1.5 rounded-lg transition capitalize ${
+            className={`px-3.5 py-1.5 rounded-xl transition capitalize whitespace-nowrap ${
               activeTab === t
-                ? 'bg-white  text-slate-900  font-bold shadow-xs'
-                : 'text-slate-600 '
+                ? 'bg-white text-slate-900 font-semibold shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             {t === 'all' ? `All (${investments.length})` : t}
@@ -180,21 +180,21 @@ export const InvestmentsView: React.FC<{
           return (
             <div
               key={inv.id}
-              className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between"
+              className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-slate-300 transition"
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div>
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-100 text-emerald-800 uppercase tracking-wider">
+                    <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 uppercase tracking-wider border border-emerald-200/60">
                       {inv.type}
                     </span>
-                    <h4 className="font-extrabold text-base text-slate-900 mt-1">{inv.name}</h4>
-                    <p className="text-[11px] text-slate-400">{inv.institutionName || 'Self Managed'}</p>
+                    <h4 className="font-semibold text-base sm:text-lg text-slate-900 mt-1.5">{inv.name}</h4>
+                    <p className="text-xs text-slate-400">{inv.institutionName || 'Self Managed'}</p>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">Current Value</span>
-                    <p className="text-lg font-black text-emerald-600">
+                    <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Current Value</span>
+                    <p className="text-lg sm:text-xl font-semibold text-emerald-600 font-mono tracking-tight mt-0.5">
                       {formatCurrency(inv.currentValue)}
                     </p>
                   </div>

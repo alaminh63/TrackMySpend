@@ -109,22 +109,22 @@ export const AccountsView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 flex items-center gap-2">
             <Landmark className="w-5 h-5 text-emerald-600" /> Accounts & Multi-Wallet Hub
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Manage Banks, MFS (bKash/Nagad), Cash wallets, and Credit Card limits with instant reconciliation
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={() => onOpenQuickAdd('transfer')}
-            className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 transition"
           >
-            <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-500" /> Transfer Funds
+            <ArrowRightLeft className="w-4 h-4 text-emerald-500" /> Transfer Funds
           </button>
           <button
             onClick={() => {
@@ -136,9 +136,9 @@ export const AccountsView: React.FC<{
               setCreditLimit('');
               setShowAccountModal(true);
             }}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-600/30"
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium flex items-center gap-1.5 shadow-sm shadow-emerald-600/30 transition"
           >
-            <Plus className="w-3.5 h-3.5" /> Add Account
+            <Plus className="w-4 h-4" /> Add Account
           </button>
         </div>
       </div>
@@ -146,21 +146,21 @@ export const AccountsView: React.FC<{
       {/* Liquid Net Worth Total Card */}
       <div className="p-6 rounded-2xl bg-white text-slate-900 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+          <span className="text-xs font-medium uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5 text-emerald-600" /> Total Liquid Working Capital
           </span>
-          <h2 className="text-3xl font-black text-slate-900 mt-1">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 mt-1 font-mono tracking-tight">
             {formatCurrency(totalAccountBalance)}
           </h2>
-          <p className="text-xs text-slate-500 mt-1">Spread across {accounts.length} active liquid accounts and cards</p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">Spread across {accounts.length} active liquid accounts and cards</p>
         </div>
 
         <div className="flex gap-2">
           <button
             onClick={() => onOpenQuickAdd('transfer')}
-            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-1.5 border border-slate-200"
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-medium flex items-center gap-1.5 border border-slate-200 transition"
           >
-            <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-600" /> Make Transfer
+            <ArrowRightLeft className="w-4 h-4 text-emerald-600" /> Make Transfer
           </button>
         </div>
       </div>
@@ -169,7 +169,7 @@ export const AccountsView: React.FC<{
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {accounts.map(acc => {
           const Icon = getAccountIcon(acc.type);
-          const isCard = acc.type === 'Credit Card';
+          const isCard = acc.type === 'card' || acc.type === 'credit';
           const cardLimit = acc.creditLimit || 0;
           const availableLimit = Math.max(0, cardLimit - Math.abs(acc.currentBalance));
           const limitUsedPct = cardLimit > 0 ? (Math.abs(acc.currentBalance) / cardLimit) * 100 : 0;
@@ -189,8 +189,8 @@ export const AccountsView: React.FC<{
                       <Icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm text-slate-900">{acc.name}</h4>
-                      <p className="text-[11px] text-slate-400">
+                      <h4 className="font-semibold text-sm sm:text-base text-slate-900">{acc.name}</h4>
+                      <p className="text-xs text-slate-400">
                         {acc.institutionName || acc.type} {acc.accountNumber ? `• ${acc.accountNumber}` : ''}
                       </p>
                     </div>
@@ -198,19 +198,19 @@ export const AccountsView: React.FC<{
 
                   <button
                     onClick={() => handleOpenEdit(acc)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
                     title="Edit account details / Reconcile"
                   >
-                    <Edit2 className="w-3.5 h-3.5" />
+                    <Edit2 className="w-4 h-4" />
                   </button>
                 </div>
 
                 {/* Balance View */}
                 <div className="my-4">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
                     {isCard ? 'Outstanding Balance' : 'Current Liquid Balance'}
                   </span>
-                  <div className={`text-2xl font-black ${isCard ? 'text-rose-600' : 'text-slate-900 '}`}>
+                  <div className={`text-xl sm:text-2xl font-semibold font-mono tracking-tight ${isCard ? 'text-rose-600' : 'text-slate-900'}`}>
                     {formatCurrency(acc.currentBalance, acc.currency)}
                   </div>
                 </div>
@@ -220,7 +220,7 @@ export const AccountsView: React.FC<{
                   <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
                     <div className="flex justify-between text-slate-500">
                       <span>Available Credit:</span>
-                      <strong className="text-emerald-600">{formatCurrency(availableLimit, acc.currency)}</strong>
+                      <strong className="text-emerald-600 font-semibold">{formatCurrency(availableLimit, acc.currency)}</strong>
                     </div>
                     <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div
@@ -228,7 +228,7 @@ export const AccountsView: React.FC<{
                         style={{ width: `${Math.min(100, limitUsedPct)}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-[10px] text-slate-400">
+                    <div className="flex justify-between text-xs text-slate-400">
                       <span>Cycle Day: {acc.billingCycleDay || 15}th</span>
                       <span>Payment Due: {acc.paymentDueDay || 5}th</span>
                     </div>
@@ -237,7 +237,7 @@ export const AccountsView: React.FC<{
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-[11px] font-medium text-slate-400">Currency: {acc.currency}</span>
+                <span className="text-xs font-normal text-slate-400">Currency: {acc.currency}</span>
                 <button
                   onClick={() => onOpenQuickAdd('expense')}
                   className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700"

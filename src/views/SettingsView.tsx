@@ -28,6 +28,7 @@ export const SettingsView: React.FC = () => {
     exportFullBackupJson,
     importFullBackupJson,
     resetToInitialData,
+    clearAllCategoriesAndBudgets,
     formatCurrency,
   } = useFinance();
 
@@ -247,13 +248,25 @@ export const SettingsView: React.FC = () => {
 
           <button
             onClick={() => {
+              if (confirm('আপনি কি পূর্ববর্তী সব ডেমো ক্যাটাগরি ও বাজেট মুছে সম্পূর্ণ ফ্রেশ শুরু করতে চান?')) {
+                clearAllCategoriesAndBudgets();
+                alert('সব ক্যাটাগরি ও বাজেট মুছে ফেলা হয়েছে। এখন আপনি Budgets ট্যাব থেকে নতুন করে তৈরি করতে পারবেন।');
+              }
+            }}
+            className="px-4 py-2 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 text-xs font-semibold flex items-center gap-2"
+          >
+            <RotateCcw className="w-4 h-4 text-amber-600" /> ক্যাটাগরি ও বাজেট ফ্রেশ রিসেট
+          </button>
+
+          <button
+            onClick={() => {
               if (confirm('Are you sure you want to reset all data back to the default production initial state?')) {
                 resetToInitialData();
               }
             }}
-            className="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold flex items-center gap-2"
+            className="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-semibold flex items-center gap-2"
           >
-            <RotateCcw className="w-4 h-4" /> Reset to Initial Sample Data
+            <RotateCcw className="w-4 h-4" /> Reset All Initial Demo Data
           </button>
         </div>
 

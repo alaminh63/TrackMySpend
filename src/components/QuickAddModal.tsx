@@ -32,6 +32,7 @@ export const QuickAddModal: React.FC<{
     exchangeRates,
     addExpense,
     addIncome,
+    addCategory,
     addTransfer,
     addLoan,
     formatCurrency,
@@ -47,7 +48,8 @@ export const QuickAddModal: React.FC<{
   const [tagsInput, setTagsInput] = useState<string>('');
 
   // Expense fields
-  const [categoryId, setCategoryId] = useState<string>(categories[0]?.id || '');
+  const [categoryId, setCategoryId] = useState<string>(() => categories[0]?.id || 'custom');
+  const [customCategoryName, setCustomCategoryName] = useState<string>('');
   const [subCategoryId, setSubCategoryId] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Bank');
   const [accountId, setAccountId] = useState<string>(accounts[0]?.id || '');
@@ -107,12 +109,30 @@ export const QuickAddModal: React.FC<{
     const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
 
     if (activeTab === 'expense') {
-      const cat = categories.find(c => c.id === categoryId);
+      let finalCatId = categoryId;
+      let finalCatName = 'General Expense';
+
+      if (categoryId === 'custom' || !categoryId) {
+        finalCatName = customCategoryName.trim() || 'সাধারণ খরচ (General)';
+        finalCatId = `cat-${Date.now()}`;
+        addCategory({
+          name: finalCatName,
+          type: 'expense',
+          icon: 'Tag',
+          color: '#10b981',
+          subCategories: [],
+        });
+      } else {
+        const cat = categories.find(c => c.id === categoryId);
+        finalCatName = cat?.name || 'General Expense';
+      }
+
+      const cat = categories.find(c => c.id === finalCatId);
       const sub = cat?.subCategories.find(s => s.id === subCategoryId);
       addExpense({
         userId: profile.email,
-        categoryId,
-        categoryName: cat?.name || 'General Expense',
+        categoryId: finalCatId,
+        categoryName: finalCatName,
         subCategoryId: subCategoryId || undefined,
         subCategoryName: sub?.name || undefined,
         amount: numAmount,
@@ -314,25 +334,48 @@ export const QuickAddModal: React.FC<{
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Category *
+                    ক্যাটাগরি (Category) *
                   </label>
-                  <select
-                    value={categoryId}
-                    onChange={e => {
-                      setCategoryId(e.target.value);
-                      setSubCategoryId('');
-                    }}
-                    className="w-full text-xs font-medium px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900"
-                  >
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
+                  {categories.length === 0 || categoryId === 'custom' ? (
+                    <div className="space-y-1">
+                      <input
+                        type="text"
+                        required
+                        placeholder="ক্যাটাগরির নাম লিখুন..."
+                        value={customCategoryName}
+                        onChange={e => setCustomCategoryName(e.target.value)}
+                        className="w-full text-xs font-medium px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-emerald-500"
+                      />
+                      {categories.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setCategoryId(categories[0].id)}
+                          className="text-[10px] text-emerald-600 hover:underline"
+                        >
+                          তালিকা থেকে বেছে নিন
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <select
+                      value={categoryId}
+                      onChange={e => {
+                        setCategoryId(e.target.value);
+                        setSubCategoryId('');
+                      }}
+                      className="w-full text-xs font-medium px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900"
+                    >
+                      {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                      <option value="custom">+ নতুন কাস্টম ক্যাটাগরি...</option>
+                    </select>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Sub-Category
+                    সাব-ক্যাটাগরি (ঐচ্ছিক)
                   </label>
                   <select
                     value={subCategoryId}

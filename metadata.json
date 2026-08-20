@@ -1,6 +1,6 @@
 {
   "name": "Personal Finance Manager",
-  "description": "Production-level personal finance management system with multi-currency income, category budgeting, loan tracking, accounts, investments, freelance invoices, and PDF/CSV reporting.",
+  "description": "Production-grade personal and family wealth management platform with Role-Based Access Control (RBAC), multi-currency accounting, category budgeting, loan tracking, investments, freelance invoicing, security audit logs, and PDF/CSV reporting.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

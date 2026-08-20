@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import {
   UserProfile,
+  UserAccount,
+  UserRole,
+  UserPermissions,
+  SecurityEvent,
   Category,
   Account,
   Income,
@@ -22,6 +26,8 @@ import {
 import {
   DEFAULT_EXCHANGE_RATES,
   INITIAL_PROFILE,
+  INITIAL_USERS,
+  INITIAL_SECURITY_EVENTS,
   INITIAL_SALARY_LOGS,
   INITIAL_CATEGORIES,
   INITIAL_ACCOUNTS,
@@ -37,6 +43,7 @@ import {
   INITIAL_NOTIFICATIONS,
   INITIAL_AUDIT_LOGS,
 } from '../data/initialData';
+import { getRolePermissions, hasPermission } from '../utils/rbac';
 
 interface FinanceContextType {
   // Profile & Auth
@@ -46,6 +53,24 @@ interface FinanceContextType {
   isAppLocked: boolean;
   unlockApp: (pin: string) => boolean;
   lockApp: () => void;
+
+  // RBAC & User Management
+  currentUser: UserAccount;
+  users: UserAccount[];
+  securityEvents: SecurityEvent[];
+  isAuthenticated: boolean;
+  login: (email: string, pass: string, rememberMe?: boolean) => { success: boolean; message?: string };
+  register: (name: string, email: string, pass: string, role?: UserRole, pinCode?: string, designation?: string) => { success: boolean; message?: string };
+  logout: () => void;
+  switchUser: (userId: string) => void;
+  updateUserRole: (userId: string, newRole: UserRole) => void;
+  addUser: (user: Omit<UserAccount, 'id' | 'createdAt'>) => void;
+  deleteUser: (userId: string) => void;
+  logSecurityEvent: (type: SecurityEvent['type'], description: string, status?: SecurityEvent['status']) => void;
+  hasRolePermission: (permission: keyof UserPermissions) => boolean;
+  userPermissions: UserPermissions;
+  authModalOpen: boolean;
+  setAuthModalOpen: (open: boolean) => void;
   
   // Currency & Rates
   exchangeRates: ExchangeRates;
@@ -78,6 +103,10 @@ interface FinanceContextType {
   updateCategory: (id: string, updates: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
   addSubCategory: (categoryId: string, name: string) => void;
+  deleteSubCategory: (categoryId: string, subCategoryId: string) => void;
+  clearAllCategoriesAndBudgets: () => void;
+  resetCategoriesToDefault: () => void;
+  loadCategoryPreset: (presetName: 'family' | 'bachelor' | 'freelancer' | 'business') => void;
 
   // Accounts & Transfers
   accounts: Account[];
@@ -182,6 +211,10 @@ const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
   PROFILE: 'pfm_profile_v1',
+  USERS: 'pfm_users_v1',
+  CURRENT_USER: 'pfm_current_user_v1',
+  SECURITY_EVENTS: 'pfm_security_events_v1',
+  IS_AUTH: 'pfm_is_auth_v1',
   RATES: 'pfm_exchange_rates_v1',
   SALARY: 'pfm_salary_logs_v1',
   CATEGORIES: 'pfm_categories_v1',
@@ -211,6 +244,17 @@ function loadStorage<T>(key: string, fallback: T): T {
 
 export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profile, setProfile] = useState<UserProfile>(() => loadStorage(STORAGE_KEYS.PROFILE, INITIAL_PROFILE));
+  const [users, setUsers] = useState<UserAccount[]>(() => loadStorage(STORAGE_KEYS.USERS, INITIAL_USERS));
+  const [currentUser, setCurrentUser] = useState<UserAccount>(() => {
+    const saved = loadStorage<UserAccount | null>(STORAGE_KEYS.CURRENT_USER, null);
+    if (saved && saved.id) return saved;
+    const initialUsers = loadStorage(STORAGE_KEYS.USERS, INITIAL_USERS);
+    return initialUsers[0] || INITIAL_USERS[0];
+  });
+  const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>(() => loadStorage(STORAGE_KEYS.SECURITY_EVENTS, INITIAL_SECURITY_EVENTS));
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => loadStorage(STORAGE_KEYS.IS_AUTH, true));
+  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+
   const [isLocked, setIsLocked] = useState<boolean>(() => {
     const prof = loadStorage(STORAGE_KEYS.PROFILE, INITIAL_PROFILE);
     return prof.isPinLocked;
@@ -233,6 +277,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Sync to localStorage
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile)); }, [profile]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users)); }, [users]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(currentUser)); }, [currentUser]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.SECURITY_EVENTS, JSON.stringify(securityEvents)); }, [securityEvents]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.IS_AUTH, JSON.stringify(isAuthenticated)); }, [isAuthenticated]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.RATES, JSON.stringify(exchangeRates)); }, [exchangeRates]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.SALARY, JSON.stringify(salaryLogs)); }, [salaryLogs]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories)); }, [categories]);
@@ -299,21 +347,209 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       summary,
       details,
       timestamp: new Date().toISOString(),
+      performedBy: {
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userRole: currentUser.role,
+      },
     };
     setAuditLogs(prev => [newLog, ...prev.slice(0, 199)]);
   };
 
-  // Auth
+  const logSecurityEvent = (
+    type: SecurityEvent['type'],
+    description: string,
+    status: SecurityEvent['status'] = 'success'
+  ) => {
+    const newEvent: SecurityEvent = {
+      id: `sec-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      type,
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userRole: currentUser.role,
+      description,
+      ipAddress: '103.230.104.22 (Dhaka, BD)',
+      timestamp: new Date().toISOString(),
+      status,
+    };
+    setSecurityEvents(prev => [newEvent, ...prev.slice(0, 99)]);
+  };
+
+  // Auth & RBAC
   const unlockApp = (pin: string): boolean => {
     if (!profile.isPinLocked || pin === profile.pinCode) {
       setIsLocked(false);
+      logSecurityEvent('auth_login', `PIN Unlock verified successfully for ${currentUser.name}`, 'success');
       return true;
     }
+    logSecurityEvent('permission_denied', `Failed PIN unlock attempt for ${currentUser.name}`, 'danger');
     return false;
   };
 
   const lockApp = () => {
     setIsLocked(true);
+    logSecurityEvent('auth_logout', `Application session locked by user`, 'warning');
+  };
+
+  const login = (email: string, pass: string, _rememberMe = true): { success: boolean; message?: string } => {
+    const foundUser = users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (!foundUser) {
+      logSecurityEvent('permission_denied', `Failed login attempt for unknown email: ${email}`, 'danger');
+      return { success: false, message: 'No account found with this email address. Please register.' };
+    }
+
+    if (pass && pass.length < 4) {
+      return { success: false, message: 'Password must be at least 4 characters long.' };
+    }
+
+    const updatedUser = { ...foundUser, lastLogin: new Date().toISOString() };
+    setCurrentUser(updatedUser);
+    setUsers(prev => prev.map(u => (u.id === foundUser.id ? updatedUser : u)));
+    setProfile(prev => ({
+      ...prev,
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+    }));
+    setIsAuthenticated(true);
+    setIsLocked(false);
+    logSecurityEvent('auth_login', `User ${updatedUser.name} signed in successfully as [${updatedUser.role.toUpperCase()}]`, 'success');
+    logAuditAction('auth_login', 'user', updatedUser.id, `User Signed In (${updatedUser.name} - ${updatedUser.role})`);
+    return { success: true };
+  };
+
+  const register = (
+    name: string,
+    email: string,
+    _pass: string,
+    role: UserRole = 'viewer',
+    pinCode = '1234',
+    designation = ''
+  ): { success: boolean; message?: string } => {
+    if (!name.trim() || !email.trim()) {
+      return { success: false, message: 'Please enter both your name and email address.' };
+    }
+    const existing = users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (existing) {
+      return { success: false, message: 'An account with this email address already exists. Please log in.' };
+    }
+
+    const newUser: UserAccount = {
+      id: `user-${Date.now()}`,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      role,
+      designation: designation.trim() || (role === 'admin' ? 'Super Admin' : role === 'manager' ? 'Accountant' : 'Family Member'),
+      pinCode,
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+      avatarUrl: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
+    };
+
+    setUsers(prev => [...prev, newUser]);
+    setCurrentUser(newUser);
+    setProfile(prev => ({
+      ...prev,
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      pinCode: pinCode || prev.pinCode,
+    }));
+    setIsAuthenticated(true);
+    setIsLocked(false);
+    logSecurityEvent('auth_register', `New user registered: ${newUser.name} with role [${newUser.role.toUpperCase()}]`, 'success');
+    logAuditAction('create', 'user', newUser.id, `New Account Registered (${newUser.name})`);
+    return { success: true };
+  };
+
+  const logout = () => {
+    logSecurityEvent('auth_logout', `User ${currentUser.name} signed out`, 'warning');
+    setIsAuthenticated(false);
+    setIsLocked(true);
+    setAuthModalOpen(true);
+  };
+
+  const switchUser = (userId: string) => {
+    const targetUser = users.find(u => u.id === userId);
+    if (!targetUser) return;
+    const updated = { ...targetUser, lastLogin: new Date().toISOString() };
+    setCurrentUser(updated);
+    setUsers(prev => prev.map(u => (u.id === targetUser.id ? updated : u)));
+    setProfile(prev => ({
+      ...prev,
+      id: updated.id,
+      name: updated.name,
+      email: updated.email,
+      role: updated.role,
+    }));
+    setIsAuthenticated(true);
+    logSecurityEvent('auth_login', `Switched active user profile to ${updated.name} [${updated.role.toUpperCase()}]`, 'success');
+    logAuditAction('update', 'user', updated.id, `Active Session Switched to ${updated.name} (${updated.role})`);
+  };
+
+  const updateUserRole = (userId: string, newRole: UserRole) => {
+    if (currentUser.role !== 'admin') {
+      logSecurityEvent('permission_denied', `Unauthorized attempt by ${currentUser.name} to change role for user ${userId}`, 'danger');
+      alert('Only Super Admin can change user roles.');
+      return;
+    }
+
+    setUsers(prev =>
+      prev.map(u => {
+        if (u.id === userId) {
+          const updated = { ...u, role: newRole };
+          if (currentUser.id === userId) {
+            setCurrentUser(updated);
+            setProfile(p => ({ ...p, role: newRole }));
+          }
+          logSecurityEvent('role_change', `Role for ${u.name} changed to [${newRole.toUpperCase()}] by ${currentUser.name}`, 'success');
+          logAuditAction('role_change', 'user', userId, `User Role Changed: ${u.name} is now ${newRole}`);
+          return updated;
+        }
+        return u;
+      })
+    );
+  };
+
+  const addUser = (userData: Omit<UserAccount, 'id' | 'createdAt'>) => {
+    if (currentUser.role !== 'admin') {
+      alert('Only Super Admin can add team members.');
+      return;
+    }
+    const newUser: UserAccount = {
+      ...userData,
+      id: `user-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+    };
+    setUsers(prev => [...prev, newUser]);
+    logSecurityEvent('security_update', `New team user invited/created: ${newUser.name} [${newUser.role.toUpperCase()}]`, 'success');
+    logAuditAction('create', 'user', newUser.id, `User Account Created (${newUser.name} - ${newUser.role})`);
+  };
+
+  const deleteUser = (userId: string) => {
+    if (currentUser.role !== 'admin') {
+      alert('Only Super Admin can delete user accounts.');
+      return;
+    }
+    if (userId === currentUser.id) {
+      alert('You cannot delete your own active administrator account.');
+      return;
+    }
+    const target = users.find(u => u.id === userId);
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    logSecurityEvent('security_update', `User account deleted: ${target?.name || userId}`, 'warning');
+    logAuditAction('delete', 'user', userId, `User Account Removed (${target?.name || userId})`);
+  };
+
+  const userPermissions = useMemo(() => {
+    return getRolePermissions(currentUser.role);
+  }, [currentUser.role]);
+
+  const hasRolePermission = (permission: keyof UserPermissions): boolean => {
+    return hasPermission(currentUser.role, permission);
   };
 
   const updateProfile = (updates: Partial<UserProfile>) => {
@@ -490,10 +726,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const updateCategory = (id: string, updates: Partial<Category>) => {
     setCategories(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+    logAuditAction('update', 'system', id, `Category updated: ${updates.name || id}`);
   };
 
   const deleteCategory = (id: string) => {
+    const target = categories.find(c => c.id === id);
     setCategories(prev => prev.filter(c => c.id !== id));
+    // Also remove associated budgets
+    setBudgets(prev => prev.filter(b => b.categoryId !== id));
+    logAuditAction('delete', 'system', id, `Category removed: ${target?.name || id}`);
   };
 
   const addSubCategory = (categoryId: string, name: string) => {
@@ -504,6 +745,236 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
       return c;
     }));
+  };
+
+  const deleteSubCategory = (categoryId: string, subCategoryId: string) => {
+    setCategories(prev => prev.map(c => {
+      if (c.id === categoryId) {
+        return { ...c, subCategories: c.subCategories.filter(s => s.id !== subCategoryId) };
+      }
+      return c;
+    }));
+  };
+
+  const clearAllCategoriesAndBudgets = () => {
+    setCategories([]);
+    setBudgets([]);
+    logSecurityEvent('security_update', 'Cleared all default categories and budgets for fresh custom setup', 'success');
+    logAuditAction('delete', 'system', 'all', 'Cleared all categories and budgets for custom user setup');
+  };
+
+  const resetCategoriesToDefault = () => {
+    setCategories(INITIAL_CATEGORIES);
+    setBudgets(INITIAL_BUDGETS);
+    logAuditAction('update', 'system', 'all', 'Reset categories and budgets to initial defaults');
+  };
+
+  const loadCategoryPreset = (presetName: 'family' | 'bachelor' | 'freelancer' | 'business') => {
+    let presetCategories: Category[] = [];
+    let presetBudgets: Budget[] = [];
+
+    if (presetName === 'family') {
+      presetCategories = [
+        {
+          id: `cat-groceries-${Date.now()}`,
+          name: 'বাজার ও মুদি সদাই (Bazaar)',
+          type: 'expense',
+          icon: 'ShoppingBag',
+          color: '#10b981',
+          subCategories: [
+            { id: `sub-1-${Date.now()}`, name: 'কাঁচা বাজার ও মাছ/মাংস' },
+            { id: `sub-2-${Date.now()}`, name: 'চাল, ডাল ও তেল-মশলা' },
+            { id: `sub-3-${Date.now()}`, name: 'দুধ, ফলমূল ও স্ন্যাকস' },
+          ],
+        },
+        {
+          id: `cat-rent-${Date.now()}`,
+          name: 'বাড়ি ভাড়া ও সার্ভিস চার্জ',
+          type: 'expense',
+          icon: 'Home',
+          color: '#6366f1',
+          subCategories: [
+            { id: `sub-4-${Date.now()}`, name: 'মাসিক ফ্ল্যাট ভাড়া' },
+            { id: `sub-5-${Date.now()}`, name: 'বিল্ডিং সার্ভিস চার্জ' },
+          ],
+        },
+        {
+          id: `cat-utilities-${Date.now()}`,
+          name: 'ইউটিলিটি ও বিদ্যুৎ-গ্যাস বিল',
+          type: 'expense',
+          icon: 'Zap',
+          color: '#f59e0b',
+          subCategories: [
+            { id: `sub-6-${Date.now()}`, name: 'বিদ্যুৎ বিল (DESCO/DPDC)' },
+            { id: `sub-7-${Date.now()}`, name: 'ওয়াইফাই ও ব্রডব্যান্ড' },
+            { id: `sub-8-${Date.now()}`, name: 'মোবাইল রিচার্জ' },
+          ],
+        },
+        {
+          id: `cat-health-${Date.now()}`,
+          name: 'চিকিৎসা ও ঔষধ (Healthcare)',
+          type: 'expense',
+          icon: 'HeartPulse',
+          color: '#ef4444',
+          subCategories: [
+            { id: `sub-9-${Date.now()}`, name: 'নিয়মিত ঔষধ' },
+            { id: `sub-10-${Date.now()}`, name: 'ডাক্তার ভিজিট ও টেস্ট' },
+          ],
+        },
+        {
+          id: `cat-transport-${Date.now()}`,
+          name: 'যাতায়াত ও ফুয়েল (Commute)',
+          type: 'expense',
+          icon: 'Car',
+          color: '#0ea5e9',
+          subCategories: [
+            { id: `sub-11-${Date.now()}`, name: 'সিএনজি ও বাস ভাড়া' },
+            { id: `sub-12-${Date.now()}`, name: 'উবার / রাইড শেয়ার' },
+          ],
+        },
+        {
+          id: `cat-emergency-${Date.now()}`,
+          name: 'জরুরি সঞ্চয় ও ফ্যামিলি ফান্ড',
+          type: 'expense',
+          icon: 'Shield',
+          color: '#8b5cf6',
+          subCategories: [
+            { id: `sub-13-${Date.now()}`, name: 'জরুরি ব্যাকআপ' },
+            { id: `sub-14-${Date.now()}`, name: 'আত্মীয়-স্বজন সহায়তা' },
+          ],
+        },
+      ];
+
+      presetBudgets = [
+        {
+          id: `b-1-${Date.now()}`,
+          categoryId: presetCategories[0].id,
+          categoryName: presetCategories[0].name,
+          monthlyLimit: 25000,
+          rollover: true,
+          alertThresholdPercent: 85,
+        },
+        {
+          id: `b-2-${Date.now()}`,
+          categoryId: presetCategories[1].id,
+          categoryName: presetCategories[1].name,
+          monthlyLimit: 30000,
+          rollover: false,
+          alertThresholdPercent: 90,
+        },
+        {
+          id: `b-3-${Date.now()}`,
+          categoryId: presetCategories[2].id,
+          categoryName: presetCategories[2].name,
+          monthlyLimit: 7000,
+          rollover: false,
+          alertThresholdPercent: 80,
+        },
+      ];
+    } else if (presetName === 'bachelor') {
+      presetCategories = [
+        {
+          id: `cat-mess-${Date.now()}`,
+          name: 'মেস খরচ ও মিল চার্জ',
+          type: 'expense',
+          icon: 'Utensils',
+          color: '#f97316',
+          subCategories: [
+            { id: `sub-b1-${Date.now()}`, name: 'দৈনিক খাবার মিল' },
+            { id: `sub-b2-${Date.now()}`, name: 'খালা বিল ও ক্লিনিং' },
+          ],
+        },
+        {
+          id: `cat-rent-seat-${Date.now()}`,
+          name: 'সিট ও রুম ভাড়া',
+          type: 'expense',
+          icon: 'Home',
+          color: '#6366f1',
+          subCategories: [
+            { id: `sub-b3-${Date.now()}`, name: 'রুম ভাড়া + ওয়াইফাই' },
+          ],
+        },
+        {
+          id: `cat-tea-${Date.now()}`,
+          name: 'চা-নাস্তা ও আউটডোর ফ্রেন্ডস',
+          type: 'expense',
+          icon: 'Coffee',
+          color: '#8b5cf6',
+          subCategories: [
+            { id: `sub-b4-${Date.now()}`, name: 'টং চা ও সিগারেট/স্ন্যাকস' },
+            { id: `sub-b5-${Date.now()}`, name: 'রেস্টুরেন্ট আড্ডা' },
+          ],
+        },
+        {
+          id: `cat-commute-${Date.now()}`,
+          name: 'অফিস বা ভার্সিটি যাতায়াত',
+          type: 'expense',
+          icon: 'Car',
+          color: '#0ea5e9',
+          subCategories: [
+            { id: `sub-b6-${Date.now()}`, name: 'বাস / মেট্রোরেল' },
+          ],
+        },
+      ];
+
+      presetBudgets = [
+        {
+          id: `b-bach-1-${Date.now()}`,
+          categoryId: presetCategories[0].id,
+          categoryName: presetCategories[0].name,
+          monthlyLimit: 8000,
+          rollover: true,
+          alertThresholdPercent: 80,
+        },
+        {
+          id: `b-bach-2-${Date.now()}`,
+          categoryId: presetCategories[1].id,
+          categoryName: presetCategories[1].name,
+          monthlyLimit: 7500,
+          rollover: false,
+          alertThresholdPercent: 90,
+        },
+      ];
+    } else {
+      // Freelancer/General
+      presetCategories = [
+        {
+          id: `cat-software-${Date.now()}`,
+          name: 'সফটওয়্যার, ডোমেইন ও ক্লাউড',
+          type: 'expense',
+          icon: 'Laptop',
+          color: '#0284c7',
+          subCategories: [
+            { id: `sub-f1-${Date.now()}`, name: 'AI সাবস্ক্রিপশন ও টুলস' },
+            { id: `sub-f2-${Date.now()}`, name: 'হোস্টিং ও সার্ভার' },
+          ],
+        },
+        {
+          id: `cat-living-${Date.now()}`,
+          name: 'জীবনযাত্রা ও নিত্য খরচ',
+          type: 'expense',
+          icon: 'ShoppingBag',
+          color: '#10b981',
+          subCategories: [
+            { id: `sub-f3-${Date.now()}`, name: 'খাবার ও ডেইলি গ্রোসারি' },
+          ],
+        },
+      ];
+      presetBudgets = [
+        {
+          id: `b-free-1-${Date.now()}`,
+          categoryId: presetCategories[0].id,
+          categoryName: presetCategories[0].name,
+          monthlyLimit: 15000,
+          rollover: true,
+          alertThresholdPercent: 80,
+        },
+      ];
+    }
+
+    setCategories(presetCategories);
+    setBudgets(presetBudgets);
+    logAuditAction('create', 'system', 'preset', `Loaded category preset: ${presetName}`);
   };
 
   // Accounts & Transfers
@@ -1047,6 +1518,22 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         isAppLocked: isLocked,
         unlockApp,
         lockApp,
+        currentUser,
+        users,
+        securityEvents,
+        isAuthenticated,
+        login,
+        register,
+        logout,
+        switchUser,
+        updateUserRole,
+        addUser,
+        deleteUser,
+        logSecurityEvent,
+        hasRolePermission,
+        userPermissions,
+        authModalOpen,
+        setAuthModalOpen,
         exchangeRates,
         updateExchangeRate,
         convertCurrency,
@@ -1069,6 +1556,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updateCategory,
         deleteCategory,
         addSubCategory,
+        deleteSubCategory,
+        clearAllCategoriesAndBudgets,
+        resetCategoriesToDefault,
+        loadCategoryPreset,
         accounts: accounts || [],
         addAccount,
         updateAccount,

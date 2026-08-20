@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FinanceProvider, useFinance } from './context/FinanceContext';
 import { AuthLockScreen } from './components/AuthLockScreen';
+import { AuthPortal } from './components/AuthPortal';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { QuickAddModal } from './components/QuickAddModal';
@@ -15,6 +16,7 @@ import {
   ReceiptText,
   Calendar,
   Sparkles,
+  Shield,
 } from 'lucide-react';
 
 import { DailyExpenseView } from './views/DailyExpenseView';
@@ -30,9 +32,10 @@ import { SavingsGoalsView } from './views/SavingsGoalsView';
 import { ReportsView } from './views/ReportsView';
 import { SettingsView } from './views/SettingsView';
 import { TrashView } from './views/TrashView';
+import { SecurityUsersView } from './views/SecurityUsersView';
 
 const MainLayout: React.FC = () => {
-  const { profile, isAppLocked, unlockApp } = useFinance();
+  const { profile, isAppLocked, isAuthenticated, authModalOpen, setAuthModalOpen } = useFinance();
 
   const [activeTab, setActiveTab] = useState<string>('daily-expense');
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -45,9 +48,14 @@ const MainLayout: React.FC = () => {
   });
   const [currencyConverterOpen, setCurrencyConverterOpen] = useState<boolean>(false);
 
+  // If user signed out, render Auth Portal
+  if (!isAuthenticated) {
+    return <AuthPortal isModal={false} />;
+  }
+
   // If locked, render PIN unlock screen
   if (profile.isPinLocked && isAppLocked) {
-    return <AuthLockScreen onUnlock={unlockApp} pinCode={profile.pinCode} />;
+    return <AuthLockScreen />;
   }
 
   const handleOpenQuickAdd = (tab: 'expense' | 'income' | 'transfer' | 'loan' = 'expense') => {
@@ -94,6 +102,8 @@ const MainLayout: React.FC = () => {
         return <FreelanceView onOpenQuickAdd={handleOpenQuickAdd} />;
       case 'goals':
         return <SavingsGoalsView onOpenQuickAdd={handleOpenQuickAdd} />;
+      case 'security-users':
+        return <SecurityUsersView />;
       case 'reports':
         return <ReportsView />;
       case 'settings':
@@ -130,7 +140,7 @@ const MainLayout: React.FC = () => {
           {/* Subtle Top Info Strip */}
           <div className="mb-4 pb-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-semibold text-[11px] sm:text-xs">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] sm:text-xs">
                 <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span className="truncate">{formattedDateEn}</span>
                 <span className="text-slate-400 hidden sm:inline">|</span>
@@ -141,13 +151,13 @@ const MainLayout: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleOpenQuickAdd('expense')}
-                className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[11px] font-bold border border-emerald-200 flex items-center gap-1 transition active:scale-95"
+                className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[11px] font-semibold border border-emerald-200 flex items-center gap-1 transition active:scale-95"
               >
                 <Plus className="w-3 h-3 stroke-[2.5]" /> নতুন খরচ
               </button>
               <button
                 onClick={() => handleOpenQuickAdd('income')}
-                className="px-3 py-1.5 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 text-[11px] font-bold border border-sky-200 flex items-center gap-1 transition active:scale-95 hidden sm:inline-flex"
+                className="px-3 py-1.5 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 text-[11px] font-semibold border border-sky-200 flex items-center gap-1 transition active:scale-95 hidden sm:inline-flex"
               >
                 <Plus className="w-3 h-3 stroke-[2.5]" /> আয় যোগ
               </button>
@@ -168,14 +178,14 @@ const MainLayout: React.FC = () => {
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation Bar (Fixed for high mobile ergonomics) */}
+      {/* Mobile Bottom Navigation Bar (Fixed for mobile ergonomics) */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 px-3 py-2 flex items-center justify-around shadow-lg pb-[env(safe-area-inset-bottom,0.5rem)]">
         <button
           onClick={() => setActiveTab('daily-expense')}
           className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all duration-150 ${
             activeTab === 'daily-expense'
-              ? 'text-amber-700 font-black bg-amber-50'
-              : 'text-slate-500 hover:text-slate-800'
+              ? 'text-amber-700 font-semibold bg-amber-50'
+              : 'text-slate-500 hover:text-slate-800 font-medium'
           }`}
         >
           <Flame className={`w-4 h-4 ${activeTab === 'daily-expense' ? 'text-amber-500 animate-pulse' : 'text-slate-400'}`} />
@@ -186,8 +196,8 @@ const MainLayout: React.FC = () => {
           onClick={() => setActiveTab('dashboard')}
           className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all duration-150 ${
             activeTab === 'dashboard'
-              ? 'text-emerald-700 font-black bg-emerald-50'
-              : 'text-slate-500 hover:text-slate-800'
+              ? 'text-emerald-700 font-semibold bg-emerald-50'
+              : 'text-slate-500 hover:text-slate-800 font-medium'
           }`}
         >
           <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-emerald-600' : 'text-slate-400'}`} />
@@ -204,29 +214,34 @@ const MainLayout: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('accounts')}
+          onClick={() => setActiveTab('security-users')}
           className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all duration-150 ${
-            activeTab === 'accounts'
-              ? 'text-emerald-700 font-black bg-emerald-50'
-              : 'text-slate-500 hover:text-slate-800'
+            activeTab === 'security-users'
+              ? 'text-emerald-700 font-semibold bg-emerald-50'
+              : 'text-slate-500 hover:text-slate-800 font-medium'
           }`}
         >
-          <Landmark className={`w-4 h-4 ${activeTab === 'accounts' ? 'text-emerald-600' : 'text-slate-400'}`} />
-          <span className="text-[10px] leading-none">ওয়ালেট</span>
+          <Shield className={`w-4 h-4 ${activeTab === 'security-users' ? 'text-emerald-600' : 'text-slate-400'}`} />
+          <span className="text-[10px] leading-none">নিরাপত্তা</span>
         </button>
 
         <button
           onClick={() => setMobileMenuOpen(true)}
           className={`flex flex-col items-center gap-1 py-1 px-2.5 rounded-xl transition-all duration-150 ${
             mobileMenuOpen
-              ? 'text-emerald-700 font-black bg-emerald-50'
-              : 'text-slate-500 hover:text-slate-800'
+              ? 'text-emerald-700 font-semibold bg-emerald-50'
+              : 'text-slate-500 hover:text-slate-800 font-medium'
           }`}
         >
           <Menu className="w-4 h-4 text-slate-400" />
           <span className="text-[10px] leading-none">মেনু</span>
         </button>
       </nav>
+
+      {/* Global Auth Modal when triggered */}
+      {authModalOpen && (
+        <AuthPortal isModal={true} onClose={() => setAuthModalOpen(false)} />
+      )}
 
       {/* Global Quick Add Modal */}
       <QuickAddModal
